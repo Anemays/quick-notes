@@ -1,0 +1,44 @@
+services:
+  # ─────────────── database ───────────────
+  postgres:
+    image: postgres:16
+    env_file: .env
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # ─────────────── object storage ─────────
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    env_file: .env
+    restart: always
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  # ─────────────── backend NestJS ─────────
+  backend:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      - postgres
+      - minio
+    ports:
+      - "3000:3000"
+
+  # ─────────────── frontend Vue ───────────
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  pgdata:
+  minio_data:
