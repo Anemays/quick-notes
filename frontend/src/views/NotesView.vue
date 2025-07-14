@@ -1,6 +1,115 @@
+<template>
+  <n-message-provider>
+    <div class="h-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- LEFT FORM -->
+      <n-card class="shadow-md border bg-white/90 flex flex-col">
+        <template #header>
+          <div class="flex items-center gap-2 text-lg font-semibold">
+            📝 Add New Note
+          </div>
+        </template>
+
+        <p class="text-gray-600 mb-4 text-sm">
+          Create a new note to keep your thoughts organized.
+        </p>
+
+        <n-form label-placement="top" class="flex-1">
+          <n-form-item label="Title">
+            <n-input v-model:value="title" placeholder="Enter a short title" />
+          </n-form-item>
+
+          <n-form-item label="Content">
+            <n-input
+              type="textarea"
+              v-model:value="content"
+              placeholder="Write something memorable..."
+              rows="4"
+            />
+          </n-form-item>
+
+          <n-form-item label="Attachment (optional)">
+            <n-upload
+              :default-upload="false"
+              :on-change="onFileUploadChange"
+              accept="image/*,application/pdf"
+            >
+              <n-button class="bg-gray-100">📎 Choose File</n-button>
+            </n-upload>
+            <p v-if="file?.name" class="text-xs mt-1 text-gray-500 italic truncate">
+              Selected: {{ file.name }}
+            </p>
+          </n-form-item>
+
+          <n-divider />
+
+          <div class="flex gap-3 mt-2">
+            <n-button
+              type="primary"
+              class="w-full"
+              @click="addNote"
+              :disabled="!title.trim()"
+            >
+              ➕ Add Note
+            </n-button>
+            <n-button ghost class="w-full" @click="store.fetch">↻ Refresh</n-button>
+          </div>
+        </n-form>
+
+        <p class="mt-6 text-xs text-gray-400 text-center italic">
+          "Even the smallest note can spark the brightest ideas."
+        </p>
+      </n-card>
+
+      <!-- RIGHT LIST -->
+      <div class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0">
+        <h2 class="text-xl font-semibold mb-4">📋 Notes List</h2>
+        <n-card
+          v-for="note in store.notes"
+          :key="note.id"
+          class="mb-4 shadow-sm border"
+        >
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="text-lg font-semibold">{{ note.title }}</h3>
+            <div class="space-x-2">
+              <n-button size="small" @click="startEdit(note)">Edit</n-button>
+              <n-button size="small" type="error" @click="() => store.remove(note.id)">Delete</n-button>
+            </div>
+          </div>
+
+          <div v-if="editing && editing.id === note.id">
+            <n-input v-model:value="eTitle" placeholder="New Title" class="mb-2" />
+            <n-input
+              type="textarea"
+              rows="3"
+              v-model:value="eContent"
+              placeholder="New Content"
+              class="mb-2"
+            />
+            <div class="flex gap-2">
+              <n-button type="primary" size="small" @click="saveEdit">Save</n-button>
+              <n-button size="small" @click="cancelEdit">Cancel</n-button>
+            </div>
+          </div>
+          <p v-else class="whitespace-pre-line">{{ note.content }}</p>
+
+          <a
+            v-if="note.fileUrl"
+            :href="note.fileUrl"
+            target="_blank"
+            class="text-blue-600 underline mt-2 block"
+          >
+            📎 View Attachment
+          </a>
+        </n-card>
+      </div>
+    </div>
+  </n-message-provider>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useNotesStore, type Note } from '@/stores/notes'
+import type { UploadFileInfo } from 'naive-ui'
 
 const store = useNotesStore()
 
@@ -8,92 +117,44 @@ const title = ref('')
 const content = ref('')
 const file = ref<File | null>(null)
 
-function pickFile(e: Event) {
-  file.value = (e.target as HTMLInputElement).files?.[0] ?? null
-}
-
-async function add() {
-  if (!title.value.trim()) return
-  await store.add(title.value, content.value, file.value || undefined)
-  title.value = content.value = ''
-  file.value = null
-}
-
 const editing = ref<Note | null>(null)
 const eTitle = ref('')
 const eContent = ref('')
+
+function onFileUploadChange({ file: uploaded }: { file: UploadFileInfo }) {
+  if (uploaded.file) {
+    file.value = uploaded.file as File
+  }
+}
+
+async function addNote() {
+  if (!title.value.trim()) return
+  await store.add(title.value, content.value, file.value ?? undefined)
+  title.value = ''
+  content.value = ''
+  file.value = null
+}
+
 function startEdit(n: Note) {
   editing.value = { ...n }
   eTitle.value = n.title
   eContent.value = n.content
 }
+
 async function saveEdit() {
   if (!editing.value) return
-  await store.update(editing.value.id, { title: eTitle.value, content: eContent.value })
+  await store.update(editing.value.id, {
+    title: eTitle.value,
+    content: eContent.value,
+  })
   editing.value = null
 }
 
-onMounted(store.fetch)
+function cancelEdit() {
+  editing.value = null
+}
 
-const isImg = (u: string) => /\.(png|jpe?g|gif|webp|svg)$/i.test(u)
+onMounted(() => {
+  store.fetch()
+})
 </script>
-
-<template>
-  <main class="max-w-6xl mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold text-center mb-10">Quick Notes</h1>
-
-    <!-- Form tambah -->
-    <div class="bg-white shadow-md rounded-xl p-6 mb-10">
-      <div class="grid md:grid-cols-2 gap-4">
-        <input v-model="title" type="text" placeholder="Title"
-               class="text-gray-700 w-full border border-gray-500 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500" />
-        <input type="file" @change="pickFile"
-               class="text-gray-700 w-full file:bg-blue-100 file:text-blue-600 file:px-4 file:py-2 file:rounded-lg file:border-none" />
-      </div>
-      <textarea v-model="content" rows="4" placeholder="Content"
-                class="text-gray-700 w-full mt-4 border border-gray-500 rounded-lg px-4 py-2 resize-none focus:outline-none focus:ring focus:ring-blue-500" />
-      <div class="mt-4 flex gap-4">
-        <button @click="add"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg">
-          Add
-        </button>
-        <button @click="store.fetch"
-                class="text-gray-500 hover:text-gray-700">
-          Refresh ↻
-        </button>
-      </div>
-    </div>
-
-    <!-- Daftar notes -->
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <div v-for="n in store.notes" :key="n.id" class="bg-white rounded-xl shadow-md p-5">
-        <template v-if="editing && editing.id === n.id">
-          <input v-model="eTitle" class="text-gray-700 w-full border rounded-lg px-3 py-2 mb-2" />
-          <textarea v-model="eContent" rows="3" class="text-gray-700 w-full border rounded-lg px-3 py-2 mb-2" />
-          <div class="flex justify-end gap-3">
-            <button @click="saveEdit" class="bg-green-600 text-white px-4 py-1 rounded-lg">Save</button>
-            <button @click="editing = null" class="text-gray-500">Cancel</button>
-          </div>
-        </template>
-
-        <template v-else>
-          <h2 class="text-gray-700 font-semibold text-lg mb-2 break-words">{{ n.title }}</h2>
-          <p class="text-gray-700 whitespace-pre-line mb-3 break-words">{{ n.content }}</p>
-
-          <!-- preview file -->
-          <div v-if="n.fileUrl" class="mb-3">
-            <img v-if="isImg(n.fileUrl)" :src="n.fileUrl"
-                 class="w-full max-h-48 object-contain rounded" />
-            <a v-else :href="n.fileUrl" target="_blank"
-               class="text-blue-600 underline text-sm">📎 Download file</a>
-          </div>
-
-          <div class="flex justify-end gap-4 text-sm">
-            <button @click="startEdit(n)" class="text-blue-600 hover:underline">Edit</button>
-            <button @click="store.remove(n.id)" class="text-red-600 hover:underline">Delete</button>
-          </div>
-        </template>
-      </div>
-    </div>
-  </main>
-</template>

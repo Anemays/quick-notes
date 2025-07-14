@@ -1,15 +1,7 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import AppLayout from './components/layouts/AppLayout.vue'
 </script>
 
 <template>
-  <RouterView />
+  <AppLayout />
 </template>
-
-<style scoped>
-body {
-  margin: 0;
-  font-family: system-ui,
-  sans-serif; background:#f9fafb;
-}
-</style>
