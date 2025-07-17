@@ -18,7 +18,9 @@ import { UpdateNoteDto } from './dto/update-note.dto';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('notes')
 @Controller('notes')
 export class NotesController {
   constructor(
@@ -27,16 +29,19 @@ export class NotesController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get all notes' })
   findAll() {
     return this.notes.findAll();
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create a new note' })
   create(@Body() createNoteDto: CreateNoteDto) {
     return this.notes.create(createNoteDto);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a note' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateNoteDto: UpdateNoteDto,
@@ -51,6 +56,7 @@ export class NotesController {
 
   // ✅ Upload note + file
   @Post('upload')
+  @ApiOperation({ summary: 'Upload a note with a file' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadNoteWithFile(
     @UploadedFile() file: Express.Multer.File,
