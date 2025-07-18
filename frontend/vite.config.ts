@@ -14,6 +14,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  define: {
+    // Enable Vue devtools in production build for private projects
+    __VUE_PROD_DEVTOOLS__: true,
+  },
+  build: {
+    // Keep sourcemaps for debugging
+    sourcemap: true,
+  },
   server: {
     proxy: {
       '/api': {
