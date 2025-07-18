@@ -28,14 +28,20 @@
           </n-form-item>
 
           <n-form-item label="Attachment (optional)">
-            <n-upload
-              :default-upload="false"
-              :on-change="onFileUploadChange"
+            <input
+              ref="fileInputRef"
+              type="file"
               accept="image/*,application/pdf"
+              class="hidden"
+              @change="onFileChange"
+            />
+            <n-button class="bg-gray-100" @click="handleFileClick">
+              📎 Choose File
+            </n-button>
+            <p
+              v-if="file?.name"
+              class="text-xs mt-1 text-gray-500 italic truncate"
             >
-              <n-button class="bg-gray-100">📎 Choose File</n-button>
-            </n-upload>
-            <p v-if="file?.name" class="text-xs mt-1 text-gray-500 italic truncate">
               Selected: {{ file.name }}
             </p>
           </n-form-item>
@@ -51,7 +57,9 @@
             >
               ➕ Add Note
             </n-button>
-            <n-button ghost class="w-full" @click="store.fetch">↻ Refresh</n-button>
+            <n-button ghost class="w-full" @click="store.fetch"
+              >↻ Refresh</n-button
+            >
           </div>
         </n-form>
 
@@ -61,7 +69,9 @@
       </n-card>
 
       <!-- RIGHT LIST -->
-      <div class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0">
+      <div
+        class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0"
+      >
         <h2 class="text-xl font-semibold mb-4">📋 Notes List</h2>
         <n-card
           v-for="note in store.notes"
@@ -72,12 +82,21 @@
             <h3 class="text-lg font-semibold">{{ note.title }}</h3>
             <div class="space-x-2">
               <n-button size="small" @click="startEdit(note)">Edit</n-button>
-              <n-button size="small" type="error" @click="() => store.remove(note.id)">Delete</n-button>
+              <n-button
+                size="small"
+                type="error"
+                @click="() => store.remove(note.id)"
+                >Delete</n-button
+              >
             </div>
           </div>
 
           <div v-if="editing && editing.id === note.id">
-            <n-input v-model:value="eTitle" placeholder="New Title" class="mb-2" />
+            <n-input
+              v-model:value="eTitle"
+              placeholder="New Title"
+              class="mb-2"
+            />
             <n-input
               type="textarea"
               rows="3"
@@ -86,7 +105,9 @@
               class="mb-2"
             />
             <div class="flex gap-2">
-              <n-button type="primary" size="small" @click="saveEdit">Save</n-button>
+              <n-button type="primary" size="small" @click="saveEdit"
+                >Save</n-button
+              >
               <n-button size="small" @click="cancelEdit">Cancel</n-button>
             </div>
           </div>
@@ -107,54 +128,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useNotesStore, type Note } from '@/stores/notes'
-import type { UploadFileInfo } from 'naive-ui'
+import { ref, onMounted } from 'vue';
+import { useNotesStore, type Note } from '@/stores/notes';
+import type { UploadFileInfo } from 'naive-ui';
 
-const store = useNotesStore()
+const store = useNotesStore();
 
-const title = ref('')
-const content = ref('')
-const file = ref<File | null>(null)
+const title = ref('');
+const content = ref('');
+const file = ref<File | null>(null);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
-const editing = ref<Note | null>(null)
-const eTitle = ref('')
-const eContent = ref('')
+const editing = ref<Note | null>(null);
+const eTitle = ref('');
+const eContent = ref('');
 
-function onFileUploadChange({ file: uploaded }: { file: UploadFileInfo }) {
-  if (uploaded.file) {
-    file.value = uploaded.file as File
+function handleFileClick(e: Event) {
+  e.preventDefault();
+  fileInputRef.value?.click();
+}
+
+function onFileChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    file.value = target.files[0];
   }
 }
 
 async function addNote() {
-  if (!title.value.trim()) return
-  await store.add(title.value, content.value, file.value ?? undefined)
-  title.value = ''
-  content.value = ''
-  file.value = null
+  if (!title.value.trim()) return;
+  await store.add(title.value, content.value, file.value ?? undefined);
+  title.value = '';
+  content.value = '';
+  file.value = null;
 }
 
 function startEdit(n: Note) {
-  editing.value = { ...n }
-  eTitle.value = n.title
-  eContent.value = n.content
+  editing.value = { ...n };
+  eTitle.value = n.title;
+  eContent.value = n.content;
 }
 
 async function saveEdit() {
-  if (!editing.value) return
+  if (!editing.value) return;
   await store.update(editing.value.id, {
     title: eTitle.value,
     content: eContent.value,
-  })
-  editing.value = null
+  });
+  editing.value = null;
 }
 
 function cancelEdit() {
-  editing.value = null
+  editing.value = null;
 }
 
 onMounted(() => {
-  store.fetch()
-})
+  store.fetch();
+});
 </script>

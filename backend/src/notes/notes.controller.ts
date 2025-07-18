@@ -63,7 +63,7 @@ export class NotesController {
     @Body() body: CreateNoteDto,
   ) {
     const filename = uuidv4() + extname(file.originalname);
-    const key = `notes/${filename}`;
+    const key = filename; // Remove 'notes/' prefix since we're already in the notes bucket
 
     await this.s3.send(
       new PutObjectCommand({
@@ -74,7 +74,8 @@ export class NotesController {
       }),
     );
 
-    const fileUrl = `${process.env.MINIO_PUBLIC_URL || 'http://localhost:9000'}/notes/${filename}`;
+    const publicUrl = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+    const fileUrl = `${publicUrl}/notes/${filename}`;
 
     return this.notes.create({
       ...body,

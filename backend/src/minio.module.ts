@@ -1,5 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { S3Client } from '@aws-sdk/client-s3';
+import { MinioInitService } from './minio-init.service';
 
 @Global()
 @Module({
@@ -17,6 +18,7 @@ import { S3Client } from '@aws-sdk/client-s3';
           },
         }),
     },
+    MinioInitService,
   ],
   exports: ['S3'],
 })

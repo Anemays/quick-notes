@@ -13,7 +13,7 @@ import {
   NMessageProvider,
   NNotificationProvider,
   NDialogProvider,
-} from 'naive-ui'
+} from 'naive-ui';
 
 export function createNaiveUI() {
   return create({
@@ -31,5 +31,5 @@ export function createNaiveUI() {
       NNotificationProvider,
       NDialogProvider,
     ],
-  })
+  });
 }
