@@ -11,6 +11,8 @@
     "type-check": "vue-tsc --build",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "lint": "eslint . --ext .vue,.js,.ts --fix",
+    "lint:check": "eslint . --ext .vue,.js,.ts",
     "format": "prettier --write \"src/**/*.{ts,vue}\" \"*.{js,ts,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,vue}\" \"*.{js,ts,json,md}\""
   },
@@ -47,6 +49,7 @@
     "vite": "^7.0.0",
     "vite-plugin-vue-devtools": "^7.7.7",
     "vitest": "^3.2.4",
+    "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^2.2.10"
   }
 }

@@ -130,7 +130,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useNotesStore, type Note } from '@/stores/notes';
-import type { UploadFileInfo } from 'naive-ui';
 
 const store = useNotesStore();
 

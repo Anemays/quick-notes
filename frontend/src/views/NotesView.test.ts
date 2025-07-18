@@ -51,9 +51,6 @@ const naiveUIComponents = {
 };
 
 describe('NotesView', () => {
-  type Note = { id: number; title: string; content: string };
-  const mockData: Note = { id: 1, title: 'Test Note', content: 'Test Content' };
-
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.resetAllMocks();
@@ -146,7 +143,6 @@ describe('NotesView', () => {
     await contentInput.setValue(content);
 
     // Handle file upload using native file input
-    const fileInput = wrapper.find('input[type="file"]');
     const vm = wrapper.vm as any;
 
     // Mock file input change event
