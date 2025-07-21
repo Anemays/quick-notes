@@ -62,3 +62,9 @@ docker-compose.yml
 # README and docs
 README.md
 *.md
+
+# Vue/Vite specific
+.vite
+.nuxt
+.output
+.vercel
