@@ -3,11 +3,8 @@ import {
   S3Client,
   CreateBucketCommand,
   HeadBucketCommand,
+  PutBucketPolicyCommand,
 } from '@aws-sdk/client-s3';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 @Injectable()
 export class MinioInitService implements OnModuleInit {
@@ -25,18 +22,32 @@ export class MinioInitService implements OnModuleInit {
         console.log('MinIO bucket "notes" created successfully');
       }
 
-      // Set public read policy using mc command
+      // Set public read policy using AWS SDK
       try {
-        await execAsync(
-          'mc alias set local http://localhost:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}',
+        const bucketPolicy = {
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Principal: '*',
+              Action: ['s3:GetObject'],
+              Resource: ['arn:aws:s3:::notes/*'],
+            },
+          ],
+        };
+
+        await this.s3.send(
+          new PutBucketPolicyCommand({
+            Bucket: 'notes',
+            Policy: JSON.stringify(bucketPolicy),
+          }),
         );
-        await execAsync('mc anonymous set download local/notes');
-        console.log('MinIO bucket policy set to public download');
-      } catch {
+        console.log('MinIO bucket policy set to public read');
+      } catch (error) {
         console.log(
-          'MinIO policy setup using mc command failed, trying alternative approach',
+          'MinIO policy setup failed:',
+          error instanceof Error ? error.message : 'Unknown error',
         );
-        // This is fine, we can set policy manually if needed
       }
 
       console.log('MinIO initialization completed');
