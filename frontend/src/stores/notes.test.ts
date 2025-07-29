@@ -77,4 +77,42 @@ describe('notes store', () => {
     expect(store.notes.length).toBe(0);
     expect(axios.delete).toHaveBeenCalledWith('/api/notes/1');
   });
+
+  it('should search notes by title', async () => {
+    const store = useNotesStore();
+    const mockNotes = [
+      { id: 1, title: 'JavaScript Guide', content: 'Content 1' },
+      { id: 2, title: 'Python Tutorial', content: 'Content 2' },
+    ];
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: mockNotes });
+
+    await store.searchByTitle('JavaScript');
+
+    expect(store.notes).toEqual(mockNotes);
+    expect(store.searchTerm).toBe('JavaScript');
+    expect(axios.get).toHaveBeenCalledWith('/api/notes/search', {
+      params: { q: 'JavaScript' },
+    });
+  });
+
+  it('should clear search and fetch all notes', async () => {
+    const store = useNotesStore();
+    const allNotes = [
+      { id: 1, title: 'JavaScript Guide', content: 'Content 1' },
+      { id: 2, title: 'Python Tutorial', content: 'Content 2' },
+      { id: 3, title: 'React Basics', content: 'Content 3' },
+    ];
+    
+    // Set initial search state
+    store.searchTerm = 'JavaScript';
+    store.notes = [{ id: 1, title: 'JavaScript Guide', content: 'Content 1' }];
+    
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: allNotes });
+
+    await store.clearSearch();
+
+    expect(store.searchTerm).toBe('');
+    expect(store.notes).toEqual(allNotes);
+    expect(axios.get).toHaveBeenCalledWith('/api/notes');
+  });
 });

@@ -28,6 +28,7 @@ describe('NotesController', () => {
             create: jest.fn().mockResolvedValue(mockNote),
             update: jest.fn().mockResolvedValue(mockNote),
             remove: jest.fn().mockResolvedValue(undefined),
+            searchByTitle: jest.fn().mockResolvedValue([mockNote]),
           },
         },
         {
@@ -57,6 +58,21 @@ describe('NotesController', () => {
     });
   });
 
+  describe('searchByTitle', () => {
+    it('should search notes by title', async () => {
+      const searchQuery = 'Test';
+
+      const result = await controller.searchByTitle(searchQuery);
+
+      expect(result).toEqual([mockNote]);
+    });
+
+    it('should handle empty search query', async () => {
+      const result = await controller.searchByTitle('');
+
+      expect(result).toEqual([mockNote]);
+    });
+  });
   describe('create', () => {
     it('should create a note', async () => {
       const dto: CreateNoteDto = {

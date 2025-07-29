@@ -89,4 +89,68 @@ describe('NotesService', () => {
       });
     });
   });
+
+  describe('searchByTitle', () => {
+    it('should search notes by title', async () => {
+      const searchQuery = 'Test';
+      const searchResults = [mockNote];
+
+      jest.spyOn(prisma.note, 'findMany').mockResolvedValue(searchResults);
+
+      const notes = await service.searchByTitle(searchQuery);
+      expect(notes).toEqual(searchResults);
+
+      const findManySpy = jest.spyOn(prisma.note, 'findMany');
+      expect(findManySpy).toHaveBeenCalledWith({
+        where: {
+          title: {
+            contains: searchQuery,
+            mode: 'insensitive',
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('should handle empty search query', async () => {
+      const searchQuery = '';
+      const searchResults = [mockNote];
+
+      jest.spyOn(prisma.note, 'findMany').mockResolvedValue(searchResults);
+
+      const notes = await service.searchByTitle(searchQuery);
+      expect(notes).toEqual(searchResults);
+
+      const findManySpy = jest.spyOn(prisma.note, 'findMany');
+      expect(findManySpy).toHaveBeenCalledWith({
+        where: {
+          title: {
+            contains: searchQuery,
+            mode: 'insensitive',
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('should return empty array when no matches found', async () => {
+      const searchQuery = 'NonExistent';
+
+      jest.spyOn(prisma.note, 'findMany').mockResolvedValue([]);
+
+      const notes = await service.searchByTitle(searchQuery);
+      expect(notes).toEqual([]);
+
+      const findManySpy = jest.spyOn(prisma.note, 'findMany');
+      expect(findManySpy).toHaveBeenCalledWith({
+        where: {
+          title: {
+            contains: searchQuery,
+            mode: 'insensitive',
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+  });
 });
