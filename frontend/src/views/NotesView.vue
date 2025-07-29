@@ -220,13 +220,13 @@ function cancelEdit() {
 }
 
 // Search functionality with debounce
-let searchTimeout: any;
+const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
 function handleSearch() {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout);
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
   }
-  searchTimeout = setTimeout(() => {
+  searchTimeout.value = setTimeout(() => {
     if (searchQuery.value.trim()) {
       store.searchByTitle(searchQuery.value.trim());
     } else {

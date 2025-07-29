@@ -26,6 +26,9 @@ export default [
         HTMLInputElement: 'readonly',
         Event: 'readonly',
         HTMLElement: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        window: 'readonly',
       },
     },
     plugins: {
@@ -62,6 +65,9 @@ export default [
         HTMLInputElement: 'readonly',
         Event: 'readonly',
         HTMLElement: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        window: 'readonly',
       },
     },
     plugins: {
