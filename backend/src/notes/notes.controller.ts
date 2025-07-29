@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Inject,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { NotesService } from './notes.service';
@@ -32,6 +33,15 @@ export class NotesController {
   @ApiOperation({ summary: 'Get all notes' })
   findAll() {
     return this.notes.findAll();
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search notes by title' })
+  searchByTitle(@Query('q') searchTerm?: string) {
+    if (!searchTerm || searchTerm.trim() === '') {
+      return this.notes.findAll();
+    }
+    return this.notes.searchByTitle(searchTerm.trim());
   }
 
   @Post()

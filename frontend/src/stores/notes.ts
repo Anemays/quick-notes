@@ -12,6 +12,7 @@ export const useNotesStore = defineStore('notes', {
   state: () => ({
     notes: [] as Note[],
     loading: false,
+    searchTerm: '',
   }),
   actions: {
     async fetch() {
@@ -30,6 +31,28 @@ export const useNotesStore = defineStore('notes', {
       } finally {
         this.loading = false;
       }
+    },
+    async searchByTitle(searchTerm: string) {
+      try {
+        this.loading = true;
+        this.searchTerm = searchTerm;
+        const res = await axios.get<Note[]>('/api/notes/search', {
+          params: { q: searchTerm },
+        });
+        this.notes = res.data || [];
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          this.notes = [];
+        } else {
+          throw error;
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
+    clearSearch() {
+      this.searchTerm = '';
+      this.fetch();
     },
     async add(title: string, content: string, f?: File) {
       if (!title.trim()) return;

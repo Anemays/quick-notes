@@ -10,6 +10,18 @@ export class NotesService {
     return this.prisma.note.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
+  searchByTitle(searchTerm: string) {
+    return this.prisma.note.findMany({
+      where: {
+        title: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   create(data: CreateNoteDto) {
     return this.prisma.note.create({ data });
   }

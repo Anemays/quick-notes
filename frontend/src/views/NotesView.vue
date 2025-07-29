@@ -72,7 +72,42 @@
       <div
         class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0"
       >
-        <h2 class="text-xl font-semibold mb-4">📋 Notes List</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">📋 Notes List</h2>
+        </div>
+
+        <!-- Search Section -->
+        <div class="mb-4">
+          <n-input
+            v-model:value="searchQuery"
+            placeholder="Search notes by title..."
+            @input="handleSearch"
+            clearable
+            class="mb-2"
+          />
+          <div
+            v-if="store.searchTerm"
+            class="flex items-center gap-2 text-sm text-gray-600"
+          >
+            <span>Searching for: "{{ store.searchTerm }}"</span>
+            <n-button size="tiny" @click="clearSearch">Clear</n-button>
+          </div>
+        </div>
+
+        <div v-if="store.loading" class="text-center py-4">
+          <n-spin size="medium" />
+        </div>
+
+        <div
+          v-else-if="store.notes.length === 0"
+          class="text-center py-8 text-gray-500"
+        >
+          <div v-if="store.searchTerm">
+            No notes found for "{{ store.searchTerm }}"
+          </div>
+          <div v-else>No notes yet. Create your first note!</div>
+        </div>
+
         <n-card
           v-for="note in store.notes"
           :key="note.id"
@@ -138,6 +173,9 @@ const content = ref('');
 const file = ref<File | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
+// Search functionality
+const searchQuery = ref('');
+
 const editing = ref<Note | null>(null);
 const eTitle = ref('');
 const eContent = ref('');
@@ -179,6 +217,27 @@ async function saveEdit() {
 
 function cancelEdit() {
   editing.value = null;
+}
+
+// Search functionality with debounce
+let searchTimeout: any;
+
+function handleSearch() {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  searchTimeout = setTimeout(() => {
+    if (searchQuery.value.trim()) {
+      store.searchByTitle(searchQuery.value.trim());
+    } else {
+      store.clearSearch();
+    }
+  }, 300); // Debounce 300ms
+}
+
+function clearSearch() {
+  searchQuery.value = '';
+  store.clearSearch();
 }
 
 onMounted(() => {
