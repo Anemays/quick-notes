@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Theme</title>
+</head>
+<body>
+    <h1>Clear Theme Settings</h1>
+    <button onclick="clearTheme()">Clear Theme and Reload</button>
+    
+    <script>
+        function clearTheme() {
+            localStorage.removeItem('theme');
+            localStorage.clear();
+            alert('Theme cleared! Page will reload to http://localhost:5173');
+            window.location.href = 'http://localhost:5173';
+        }
+        
+        // Auto clear on load
+        setTimeout(() => {
+            clearTheme();
+        }, 1000);
+    </script>
+</body>
+</html>

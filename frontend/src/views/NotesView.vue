@@ -2,14 +2,29 @@
   <n-message-provider>
     <div class="h-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- LEFT FORM -->
-      <n-card class="shadow-md border bg-white/90 flex flex-col">
+      <n-card
+        :class="[
+          'shadow-sm border flex flex-col',
+          themeStore.isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'
+        ]"
+      >
         <template #header>
-          <div class="flex items-center gap-2 text-lg font-semibold">
+          <div
+            :class="[
+              'flex items-center gap-2 text-lg font-medium',
+              themeStore.isDark ? 'text-white' : 'text-gray-900'
+            ]"
+          >
             📝 Add New Note
           </div>
         </template>
 
-        <p class="text-gray-600 mb-4 text-sm">
+        <p :class="[
+          'mb-4 text-sm',
+          themeStore.isDark ? 'text-gray-400' : 'text-gray-600'
+        ]">
           Create a new note to keep your thoughts organized.
         </p>
 
@@ -35,12 +50,22 @@
               class="hidden"
               @change="onFileChange"
             />
-            <n-button class="bg-gray-100" @click="handleFileClick">
+            <n-button
+              :class="[
+                themeStore.isDark 
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              ]"
+              @click="handleFileClick"
+            >
               📎 Choose File
             </n-button>
             <p
               v-if="file?.name"
-              class="text-xs mt-1 text-gray-500 italic truncate"
+              :class="[
+                'text-xs mt-1 italic truncate',
+                themeStore.isDark ? 'text-gray-400' : 'text-gray-500'
+              ]"
             >
               Selected: {{ file.name }}
             </p>
@@ -63,7 +88,12 @@
           </div>
         </n-form>
 
-        <p class="mt-6 text-xs text-gray-400 text-center italic">
+        <p
+          :class="[
+            'mt-6 text-xs text-center italic',
+            themeStore.isDark ? 'text-gray-500' : 'text-gray-600'
+          ]"
+        >
           "Even the smallest note can spark the brightest ideas."
         </p>
       </n-card>
@@ -73,7 +103,12 @@
         class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0"
       >
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold">📋 Notes List</h2>
+          <h2 :class="[
+            'text-xl font-semibold',
+            themeStore.isDark ? 'text-white' : 'text-gray-900'
+          ]">
+            📋 Notes List
+          </h2>
         </div>
 
         <!-- Search Section -->
@@ -87,7 +122,10 @@
           />
           <div
             v-if="store.searchTerm"
-            class="flex items-center gap-2 text-sm text-gray-600"
+            :class="[
+              'flex items-center gap-2 text-sm',
+              themeStore.isDark ? 'text-gray-400' : 'text-gray-600'
+            ]"
           >
             <span>Searching for: "{{ store.searchTerm }}"</span>
             <n-button size="tiny" @click="clearSearch">Clear</n-button>
@@ -100,7 +138,10 @@
 
         <div
           v-else-if="store.notes.length === 0"
-          class="text-center py-8 text-gray-500"
+          :class="[
+            'text-center py-8',
+            themeStore.isDark ? 'text-gray-400' : 'text-gray-500'
+          ]"
         >
           <div v-if="store.searchTerm">
             No notes found for "{{ store.searchTerm }}"
@@ -111,10 +152,20 @@
         <n-card
           v-for="note in store.notes"
           :key="note.id"
-          class="mb-4 shadow-sm border"
+          :class="[
+            'mb-4 shadow-sm border',
+            themeStore.isDark 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-200'
+          ]"
         >
           <div class="flex justify-between items-center mb-2">
-            <h3 class="text-lg font-semibold">{{ note.title }}</h3>
+            <h3 :class="[
+              'text-lg font-medium',
+              themeStore.isDark ? 'text-white' : 'text-gray-900'
+            ]">
+              {{ note.title }}
+            </h3>
             <div class="space-x-2">
               <n-button size="small" @click="startEdit(note)">Edit</n-button>
               <n-button
@@ -146,13 +197,24 @@
               <n-button size="small" @click="cancelEdit">Cancel</n-button>
             </div>
           </div>
-          <p v-else class="whitespace-pre-line">{{ note.content }}</p>
+          <p
+            v-else
+            :class="[
+              'whitespace-pre-line',
+              themeStore.isDark ? 'text-gray-300' : 'text-gray-700'
+            ]"
+          >
+            {{ note.content }}
+          </p>
 
           <a
             v-if="note.fileUrl"
             :href="note.fileUrl"
             target="_blank"
-            class="text-blue-600 underline mt-2 block"
+            :class="[
+              'underline mt-2 block',
+              themeStore.isDark ? 'text-blue-400' : 'text-blue-600'
+            ]"
           >
             📎 View Attachment
           </a>
@@ -165,8 +227,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useNotesStore, type Note } from '@/stores/notes';
+import { useThemeStore } from '@/stores/theme';
 
 const store = useNotesStore();
+const themeStore = useThemeStore();
 
 const title = ref('');
 const content = ref('');

@@ -1,7 +1,29 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
+import { createPinia } from 'pinia';
 import App from './App.vue';
+
+// Mock browser APIs
+Object.defineProperty(window, 'matchMedia', {
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+Object.defineProperty(window, 'localStorage', {
+  value: {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+  },
+});
 
 // Create a minimal router instance
 const router = createRouter({
@@ -31,9 +53,10 @@ vi.mock('./components/layouts/AppLayout.vue', () => ({
 
 describe('App', () => {
   it('renders properly with layout', async () => {
+    const pinia = createPinia();
     const wrapper = mount(App, {
       global: {
-        plugins: [router],
+        plugins: [router, pinia],
       },
     });
 

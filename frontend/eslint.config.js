@@ -29,6 +29,8 @@ export default [
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
       },
     },
     plugins: {
@@ -68,6 +70,8 @@ export default [
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         window: 'readonly',
+        document: 'readonly',
+        localStorage: 'readonly',
       },
     },
     plugins: {

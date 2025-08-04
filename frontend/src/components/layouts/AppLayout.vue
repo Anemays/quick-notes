@@ -1,5 +1,10 @@
 <template>
-  <div class="flex h-screen bg-gray-50 overflow-hidden">
+  <div
+    :class="[
+      'flex h-screen overflow-hidden transition-colors',
+      themeStore.isDark ? 'bg-gray-900' : 'bg-gray-50'
+    ]"
+  >
     <!-- Sidebar -->
     <AppSidebar :collapsed="collapsed" @toggle="collapsed = !collapsed" />
 
@@ -9,7 +14,12 @@
       <AppNavbar />
 
       <!-- Page Content with scroll -->
-      <main class="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <main
+        :class="[
+          'flex-1 overflow-y-auto p-6 transition-colors',
+          themeStore.isDark ? 'bg-gray-900' : 'bg-gray-50'
+        ]"
+      >
         <router-view />
       </main>
     </div>
@@ -18,8 +28,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useThemeStore } from '@/stores/theme';
 import AppSidebar from './AppSidebar.vue';
 import AppNavbar from './AppNavbar.vue';
 
 const collapsed = ref(true);
+const themeStore = useThemeStore();
 </script>

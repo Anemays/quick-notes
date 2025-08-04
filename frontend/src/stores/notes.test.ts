@@ -102,11 +102,11 @@ describe('notes store', () => {
       { id: 2, title: 'Python Tutorial', content: 'Content 2' },
       { id: 3, title: 'React Basics', content: 'Content 3' },
     ];
-    
+
     // Set initial search state
     store.searchTerm = 'JavaScript';
     store.notes = [{ id: 1, title: 'JavaScript Guide', content: 'Content 1' }];
-    
+
     vi.mocked(axios.get).mockResolvedValueOnce({ data: allNotes });
 
     await store.clearSearch();
