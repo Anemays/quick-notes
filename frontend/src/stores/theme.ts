@@ -38,7 +38,7 @@ export const useThemeStore = defineStore('theme', () => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
       console.log('💾 Saved theme from localStorage:', savedTheme);
-      
+
       if (savedTheme) {
         isDark.value = savedTheme === 'dark';
       } else {
@@ -46,7 +46,7 @@ export const useThemeStore = defineStore('theme', () => {
         console.log('🌞 No saved theme, setting default light mode');
         isDark.value = false;
       }
-      
+
       console.log('🎭 Final isDark value after initialization:', isDark.value);
     }
   };

@@ -5,26 +5,28 @@
       <n-card
         :class="[
           'shadow-sm border flex flex-col',
-          themeStore.isDark 
-            ? 'bg-gray-800 border-gray-700' 
-            : 'bg-white border-gray-200'
+          themeStore.isDark
+            ? 'bg-gray-800 border-gray-700'
+            : 'bg-white border-gray-200',
         ]"
       >
         <template #header>
           <div
             :class="[
               'flex items-center gap-2 text-lg font-medium',
-              themeStore.isDark ? 'text-white' : 'text-gray-900'
+              themeStore.isDark ? 'text-white' : 'text-gray-900',
             ]"
           >
             📝 Add New Note
           </div>
         </template>
 
-        <p :class="[
-          'mb-4 text-sm',
-          themeStore.isDark ? 'text-gray-400' : 'text-gray-600'
-        ]">
+        <p
+          :class="[
+            'mb-4 text-sm',
+            themeStore.isDark ? 'text-gray-400' : 'text-gray-600',
+          ]"
+        >
           Create a new note to keep your thoughts organized.
         </p>
 
@@ -52,9 +54,9 @@
             />
             <n-button
               :class="[
-                themeStore.isDark 
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                themeStore.isDark
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700',
               ]"
               @click="handleFileClick"
             >
@@ -64,7 +66,7 @@
               v-if="file?.name"
               :class="[
                 'text-xs mt-1 italic truncate',
-                themeStore.isDark ? 'text-gray-400' : 'text-gray-500'
+                themeStore.isDark ? 'text-gray-400' : 'text-gray-500',
               ]"
             >
               Selected: {{ file.name }}
@@ -91,7 +93,7 @@
         <p
           :class="[
             'mt-6 text-xs text-center italic',
-            themeStore.isDark ? 'text-gray-500' : 'text-gray-600'
+            themeStore.isDark ? 'text-gray-500' : 'text-gray-600',
           ]"
         >
           "Even the smallest note can spark the brightest ideas."
@@ -103,10 +105,12 @@
         class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0"
       >
         <div class="flex items-center justify-between mb-4">
-          <h2 :class="[
-            'text-xl font-semibold',
-            themeStore.isDark ? 'text-white' : 'text-gray-900'
-          ]">
+          <h2
+            :class="[
+              'text-xl font-semibold',
+              themeStore.isDark ? 'text-white' : 'text-gray-900',
+            ]"
+          >
             📋 Notes List
           </h2>
         </div>
@@ -124,7 +128,7 @@
             v-if="store.searchTerm"
             :class="[
               'flex items-center gap-2 text-sm',
-              themeStore.isDark ? 'text-gray-400' : 'text-gray-600'
+              themeStore.isDark ? 'text-gray-400' : 'text-gray-600',
             ]"
           >
             <span>Searching for: "{{ store.searchTerm }}"</span>
@@ -140,7 +144,7 @@
           v-else-if="store.notes.length === 0"
           :class="[
             'text-center py-8',
-            themeStore.isDark ? 'text-gray-400' : 'text-gray-500'
+            themeStore.isDark ? 'text-gray-400' : 'text-gray-500',
           ]"
         >
           <div v-if="store.searchTerm">
@@ -154,16 +158,18 @@
           :key="note.id"
           :class="[
             'mb-4 shadow-sm border',
-            themeStore.isDark 
-              ? 'bg-gray-800 border-gray-700' 
-              : 'bg-white border-gray-200'
+            themeStore.isDark
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-white border-gray-200',
           ]"
         >
           <div class="flex justify-between items-center mb-2">
-            <h3 :class="[
-              'text-lg font-medium',
-              themeStore.isDark ? 'text-white' : 'text-gray-900'
-            ]">
+            <h3
+              :class="[
+                'text-lg font-medium',
+                themeStore.isDark ? 'text-white' : 'text-gray-900',
+              ]"
+            >
               {{ note.title }}
             </h3>
             <div class="space-x-2">
@@ -201,7 +207,7 @@
             v-else
             :class="[
               'whitespace-pre-line',
-              themeStore.isDark ? 'text-gray-300' : 'text-gray-700'
+              themeStore.isDark ? 'text-gray-300' : 'text-gray-700',
             ]"
           >
             {{ note.content }}
@@ -213,7 +219,7 @@
             target="_blank"
             :class="[
               'underline mt-2 block',
-              themeStore.isDark ? 'text-blue-400' : 'text-blue-600'
+              themeStore.isDark ? 'text-blue-400' : 'text-blue-600',
             ]"
           >
             📎 View Attachment

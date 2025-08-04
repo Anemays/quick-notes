@@ -2,7 +2,7 @@
   <div
     :class="[
       'flex h-screen overflow-hidden transition-colors',
-      themeStore.isDark ? 'bg-gray-900' : 'bg-gray-50'
+      themeStore.isDark ? 'bg-gray-900' : 'bg-gray-50',
     ]"
   >
     <!-- Sidebar -->
@@ -17,7 +17,7 @@
       <main
         :class="[
           'flex-1 overflow-y-auto p-6 transition-colors',
-          themeStore.isDark ? 'bg-gray-900' : 'bg-gray-50'
+          themeStore.isDark ? 'bg-gray-900' : 'bg-gray-50',
         ]"
       >
         <router-view />

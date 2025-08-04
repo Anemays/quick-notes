@@ -31,6 +31,7 @@ export default [
         window: 'readonly',
         document: 'readonly',
         localStorage: 'readonly',
+        console: 'readonly',
       },
     },
     plugins: {
@@ -72,6 +73,7 @@ export default [
         window: 'readonly',
         document: 'readonly',
         localStorage: 'readonly',
+        console: 'readonly',
       },
     },
     plugins: {
