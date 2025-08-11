@@ -72,7 +72,7 @@ vi.mock('naive-ui', () => ({
     warning: vi.fn(),
     error: vi.fn(),
   })),
-  
+
   // Create mock for all components as functions
   create: vi.fn(() => ({
     NButton: { name: 'NButton' },

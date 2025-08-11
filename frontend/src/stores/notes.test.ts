@@ -11,7 +11,7 @@ describe('notes store', () => {
     // Dynamic import to avoid immediate axios initialization
     const { useNotesStore } = await import('./notes');
     const store = useNotesStore();
-    
+
     // Test that store exists and has expected structure
     expect(store).toBeDefined();
     expect(store).toHaveProperty('notes');
@@ -22,7 +22,7 @@ describe('notes store', () => {
   it('should handle search state management', async () => {
     const { useNotesStore } = await import('./notes');
     const store = useNotesStore();
-    
+
     // Test search functionality that doesn't require API
     expect(typeof store.clearSearch).toBe('function');
     expect(typeof store.searchByTitle).toBe('function');
