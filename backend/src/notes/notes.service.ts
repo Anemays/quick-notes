@@ -6,13 +6,17 @@ import { CreateNoteDto } from './dto/create-note.dto';
 export class NotesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.note.findMany({ orderBy: { createdAt: 'desc' } });
+  findAll(userId: number) {
+    return this.prisma.note.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  searchByTitle(searchTerm: string) {
+  searchByTitle(searchTerm: string, userId: number) {
     return this.prisma.note.findMany({
       where: {
+        userId,
         title: {
           contains: searchTerm,
           mode: 'insensitive',
@@ -22,15 +26,31 @@ export class NotesService {
     });
   }
 
-  create(data: CreateNoteDto) {
-    return this.prisma.note.create({ data });
+  create(data: CreateNoteDto, userId: number) {
+    return this.prisma.note.create({
+      data: {
+        ...data,
+        userId,
+      },
+    });
   }
 
-  update(id: number, data: Partial<CreateNoteDto>) {
-    return this.prisma.note.update({ where: { id }, data });
+  update(id: number, data: Partial<CreateNoteDto>, userId: number) {
+    return this.prisma.note.update({
+      where: {
+        id,
+        userId,
+      },
+      data,
+    });
   }
 
-  remove(id: number) {
-    return this.prisma.note.delete({ where: { id } });
+  remove(id: number, userId: number) {
+    return this.prisma.note.delete({
+      where: {
+        id,
+        userId,
+      },
+    });
   }
 }

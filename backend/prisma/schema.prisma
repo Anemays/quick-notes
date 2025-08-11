@@ -15,6 +15,18 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  name     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relation to notes
+  notes Note[]
+}
+
 model Note {
   id        Int   @id @default(autoincrement())
   title     String
@@ -22,4 +34,8 @@ model Note {
   fileUrl   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Foreign key to user
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

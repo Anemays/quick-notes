@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/auth';
 
 const themeStore = useThemeStore();
+const authStore = useAuthStore();
 </script>
 
 <template>
@@ -134,18 +136,53 @@ const themeStore = useThemeStore();
 
       <!-- Get Started Section -->
       <div class="text-center py-8">
-        <router-link
-          to="/notes"
-          :class="[
-            'inline-flex items-center px-6 py-3 text-base font-medium rounded-lg transition-colors border',
-            themeStore.isDark
-              ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600'
-              : 'text-gray-900 bg-gray-100 hover:bg-gray-200 border-gray-300',
-          ]"
-        >
-          Get Started
-          <span class="ml-2">→</span>
-        </router-link>
+        <div v-if="authStore.isAuthenticated" class="space-y-4">
+          <p
+            :class="[
+              'text-lg mb-4',
+              themeStore.isDark ? 'text-gray-300' : 'text-gray-600',
+            ]"
+          >
+            Welcome back, {{ authStore.user?.name }}!
+          </p>
+          <router-link
+            to="/notes"
+            :class="[
+              'inline-flex items-center px-6 py-3 text-base font-medium rounded-lg transition-colors border',
+              themeStore.isDark
+                ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600'
+                : 'text-gray-900 bg-gray-100 hover:bg-gray-200 border-gray-300',
+            ]"
+          >
+            Go to Notes
+            <span class="ml-2">→</span>
+          </router-link>
+        </div>
+        <div v-else class="space-y-4">
+          <router-link
+            to="/login"
+            :class="[
+              'inline-flex items-center px-6 py-3 text-base font-medium rounded-lg transition-colors border mr-4',
+              themeStore.isDark
+                ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600'
+                : 'text-gray-900 bg-gray-100 hover:bg-gray-200 border-gray-300',
+            ]"
+          >
+            Get Started
+            <span class="ml-2">→</span>
+          </router-link>
+          <router-link
+            to="/login"
+            :class="[
+              'inline-flex items-center px-6 py-3 text-base font-medium rounded-lg transition-colors border',
+              themeStore.isDark
+                ? 'text-gray-300 border-gray-600 hover:bg-gray-700'
+                : 'text-gray-700 border-gray-300 hover:bg-gray-50',
+            ]"
+          >
+            Sign In
+          </router-link>
+        </div>
       </div>
     </div>
   </main>

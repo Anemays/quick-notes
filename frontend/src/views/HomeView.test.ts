@@ -1,7 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import HomeView from './HomeView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { createPinia } from 'pinia';
+
+// Mock theme store
+vi.mock('@/stores/theme', () => ({
+  useThemeStore: vi.fn(() => ({
+    isDark: false,
+    toggleTheme: vi.fn(),
+  })),
+}));
 
 const mockRouter = createRouter({
   history: createWebHistory(),
@@ -13,9 +22,10 @@ const mockRouter = createRouter({
 
 describe('HomeView', () => {
   it('renders properly', async () => {
+    const pinia = createPinia();
     const wrapper = mount(HomeView, {
       global: {
-        plugins: [mockRouter],
+        plugins: [mockRouter, pinia],
       },
     });
 

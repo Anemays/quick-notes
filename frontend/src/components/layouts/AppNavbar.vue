@@ -7,31 +7,70 @@
         : 'bg-white border-gray-200',
     ]"
   >
-    <div
+    <router-link
+      to="/"
       :class="[
-        'text-lg font-medium',
+        'text-lg font-medium hover:opacity-80 transition-opacity',
         themeStore.isDark ? 'text-white' : 'text-gray-900',
       ]"
     >
       Quick Notes
-    </div>
+    </router-link>
     <div class="flex items-center gap-4">
-      <div
+      <!-- User info when authenticated -->
+      <div v-if="authStore.isAuthenticated" class="flex items-center gap-3">
+        <span
+          :class="[
+            'text-sm',
+            themeStore.isDark ? 'text-gray-300' : 'text-gray-600',
+          ]"
+        >
+          {{ authStore.user?.name }}
+        </span>
+        <button
+          @click="handleLogout"
+          :class="[
+            'text-sm px-3 py-1 rounded transition-colors',
+            themeStore.isDark
+              ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
+          ]"
+        >
+          Logout
+        </button>
+      </div>
+
+      <!-- Login button when not authenticated -->
+      <router-link
+        v-else
+        to="/login"
         :class="[
-          'text-sm',
-          themeStore.isDark ? 'text-gray-400' : 'text-gray-500',
+          'text-sm px-3 py-1 rounded transition-colors',
+          themeStore.isDark
+            ? 'text-gray-300 hover:text-white hover:bg-gray-700'
+            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
         ]"
       >
-        Vue 3 + Naive UI
-      </div>
+        Sign In
+      </router-link>
+
       <ThemeToggle />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import { useThemeStore } from '@/stores/theme';
+import { useAuthStore } from '@/stores/auth';
 import ThemeToggle from '../ThemeToggle.vue';
 
+const router = useRouter();
 const themeStore = useThemeStore();
+const authStore = useAuthStore();
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/');
+};
 </script>

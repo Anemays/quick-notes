@@ -11,6 +11,7 @@ describe('NotesService', () => {
     title: 'Test Note',
     content: 'Test Content',
     fileUrl: null,
+    userId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -39,10 +40,11 @@ describe('NotesService', () => {
 
   describe('findAll', () => {
     it('should return array of notes', async () => {
-      const notes = await service.findAll();
+      const notes = await service.findAll(1);
       expect(notes).toEqual([mockNote]);
       const findManySpy = jest.spyOn(prisma.note, 'findMany');
       expect(findManySpy).toHaveBeenCalledWith({
+        where: { userId: 1 },
         orderBy: { createdAt: 'desc' },
       });
     });
@@ -55,11 +57,11 @@ describe('NotesService', () => {
         content: 'Test Content',
       };
 
-      const note = await service.create(dto);
+      const note = await service.create(dto, 1);
       expect(note).toEqual(mockNote);
       const createSpy = jest.spyOn(prisma.note, 'create');
       expect(createSpy).toHaveBeenCalledWith({
-        data: dto,
+        data: { ...dto, userId: 1 },
       });
     });
   });
@@ -70,11 +72,11 @@ describe('NotesService', () => {
         title: 'Updated Note',
       };
 
-      const note = await service.update(1, dto);
+      const note = await service.update(1, dto, 1);
       expect(note).toEqual(mockNote);
       const updateSpy = jest.spyOn(prisma.note, 'update');
       expect(updateSpy).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: 1, userId: 1 },
         data: dto,
       });
     });
@@ -82,10 +84,10 @@ describe('NotesService', () => {
 
   describe('remove', () => {
     it('should remove a note', async () => {
-      await service.remove(1);
+      await service.remove(1, 1);
       const deleteSpy = jest.spyOn(prisma.note, 'delete');
       expect(deleteSpy).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: 1, userId: 1 },
       });
     });
   });
@@ -97,12 +99,13 @@ describe('NotesService', () => {
 
       jest.spyOn(prisma.note, 'findMany').mockResolvedValue(searchResults);
 
-      const notes = await service.searchByTitle(searchQuery);
+      const notes = await service.searchByTitle(searchQuery, 1);
       expect(notes).toEqual(searchResults);
 
       const findManySpy = jest.spyOn(prisma.note, 'findMany');
       expect(findManySpy).toHaveBeenCalledWith({
         where: {
+          userId: 1,
           title: {
             contains: searchQuery,
             mode: 'insensitive',
@@ -118,12 +121,13 @@ describe('NotesService', () => {
 
       jest.spyOn(prisma.note, 'findMany').mockResolvedValue(searchResults);
 
-      const notes = await service.searchByTitle(searchQuery);
+      const notes = await service.searchByTitle(searchQuery, 1);
       expect(notes).toEqual(searchResults);
 
       const findManySpy = jest.spyOn(prisma.note, 'findMany');
       expect(findManySpy).toHaveBeenCalledWith({
         where: {
+          userId: 1,
           title: {
             contains: searchQuery,
             mode: 'insensitive',
@@ -138,12 +142,13 @@ describe('NotesService', () => {
 
       jest.spyOn(prisma.note, 'findMany').mockResolvedValue([]);
 
-      const notes = await service.searchByTitle(searchQuery);
+      const notes = await service.searchByTitle(searchQuery, 1);
       expect(notes).toEqual([]);
 
       const findManySpy = jest.spyOn(prisma.note, 'findMany');
       expect(findManySpy).toHaveBeenCalledWith({
         where: {
+          userId: 1,
           title: {
             contains: searchQuery,
             mode: 'insensitive',

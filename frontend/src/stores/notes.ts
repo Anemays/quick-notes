@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useAuthStore } from './auth';
 
 export interface Note {
   id: number;
@@ -7,6 +8,33 @@ export interface Note {
   content: string;
   fileUrl?: string | null;
 }
+
+// Create axios instance with auth interceptor
+const api = axios.create({
+  baseURL: '/api',
+});
+
+// Add request interceptor to include auth token
+api.interceptors.request.use((config) => {
+  const authStore = useAuthStore();
+  if (authStore.token) {
+    config.headers.Authorization = `Bearer ${authStore.token}`;
+  }
+  return config;
+});
+
+// Add response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const authStore = useAuthStore();
+      authStore.logout();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  },
+);
 
 export const useNotesStore = defineStore('notes', {
   state: () => ({
@@ -18,7 +46,7 @@ export const useNotesStore = defineStore('notes', {
     async fetch() {
       try {
         this.loading = true;
-        const res = await axios.get<Note[]>('/api/notes');
+        const res = await api.get<Note[]>('/notes');
         this.notes = res.data || [];
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -36,7 +64,7 @@ export const useNotesStore = defineStore('notes', {
       try {
         this.loading = true;
         this.searchTerm = searchTerm;
-        const res = await axios.get<Note[]>('/api/notes/search', {
+        const res = await api.get<Note[]>('/notes/search', {
           params: { q: searchTerm },
         });
         this.notes = res.data || [];
@@ -62,12 +90,12 @@ export const useNotesStore = defineStore('notes', {
           form.append('title', title);
           form.append('content', content);
           form.append('file', f);
-          const res = await axios.post<Note>('/api/notes/upload', form);
+          const res = await api.post<Note>('/notes/upload', form);
           if (res.data) {
             this.notes.push(res.data);
           }
         } else {
-          const res = await axios.post<Note>('/api/notes', { title, content });
+          const res = await api.post<Note>('/notes', { title, content });
           if (res.data) {
             this.notes.push(res.data);
           }
@@ -80,12 +108,12 @@ export const useNotesStore = defineStore('notes', {
       }
     },
     async update(id: number, data: Partial<Note>) {
-      const res = await axios.patch<Note>(`/api/notes/${id}`, data);
+      const res = await api.patch<Note>(`/notes/${id}`, data);
       const idx = this.notes.findIndex((n) => n.id === id);
       if (idx !== -1) this.notes[idx] = res.data;
     },
     async remove(id: number) {
-      await axios.delete(`/api/notes/${id}`);
+      await api.delete(`/notes/${id}`);
       this.notes = this.notes.filter((n) => n.id !== id);
     },
   },
