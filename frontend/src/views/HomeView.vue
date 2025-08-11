@@ -137,10 +137,10 @@ const themeStore = useThemeStore();
         <router-link
           to="/notes"
           :class="[
-            'inline-flex items-center px-6 py-3 text-base font-medium rounded-lg transition-colors',
+            'inline-flex items-center px-6 py-3 text-base font-medium rounded-lg transition-colors border',
             themeStore.isDark
-              ? 'text-white bg-gray-900 hover:bg-gray-800'
-              : 'text-gray-900 bg-white hover:bg-gray-100',
+              ? 'text-white bg-gray-700 hover:bg-gray-600 border-gray-600'
+              : 'text-gray-900 bg-gray-100 hover:bg-gray-200 border-gray-300',
           ]"
         >
           Get Started

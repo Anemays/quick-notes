@@ -4,10 +4,10 @@
       <!-- LEFT FORM -->
       <n-card
         :class="[
-          'shadow-sm border flex flex-col',
+          'shadow-sm border flex flex-col rounded-lg',
           themeStore.isDark
-            ? 'bg-gray-800 border-gray-700'
-            : 'bg-white border-gray-200',
+            ? '!bg-gray-800 !border-gray-700'
+            : '!bg-white !border-gray-200',
         ]"
       >
         <template #header>
@@ -157,10 +157,10 @@
           v-for="note in store.notes"
           :key="note.id"
           :class="[
-            'mb-4 shadow-sm border',
+            'mb-4 shadow-sm border rounded-lg',
             themeStore.isDark
-              ? 'bg-gray-800 border-gray-700'
-              : 'bg-white border-gray-200',
+              ? '!bg-gray-800 !border-gray-700'
+              : '!bg-white !border-gray-200',
           ]"
         >
           <div class="flex justify-between items-center mb-2">
