@@ -1,17 +1,39 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useFoldersStore } from './folders';
-import { useAuthStore } from './auth';
 
 // Mock axios
 vi.mock('axios', () => ({
   default: {
+    create: vi.fn(() => ({
+      get: vi.fn(),
+      post: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn(),
+      put: vi.fn(),
+      interceptors: {
+        request: {
+          use: vi.fn(),
+        },
+        response: {
+          use: vi.fn(),
+        },
+      },
+    })),
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),
     put: vi.fn(),
   },
+}));
+
+// Mock useAuthStore
+vi.mock('./auth', () => ({
+  useAuthStore: vi.fn(() => ({
+    token: null,
+    user: null,
+  })),
 }));
 
 describe('Folders Store', () => {
@@ -103,11 +125,17 @@ describe('Folders Store', () => {
   });
 
   it('should not fetch folders when no auth token', async () => {
-    const store = useFoldersStore();
-    const authStore = useAuthStore();
+    // Mock useAuthStore to return no token
+    const mockAuthStore = {
+      token: null,
+      user: null,
+    };
 
-    // Mock no token
-    authStore.token = null;
+    vi.doMock('./auth', () => ({
+      useAuthStore: () => mockAuthStore,
+    }));
+
+    const store = useFoldersStore();
 
     await store.fetchFolders();
 
@@ -115,11 +143,17 @@ describe('Folders Store', () => {
   });
 
   it('should not create folder when no auth token', async () => {
-    const store = useFoldersStore();
-    const authStore = useAuthStore();
+    // Mock useAuthStore to return no token
+    const mockAuthStore = {
+      token: null,
+      user: null,
+    };
 
-    // Mock no token
-    authStore.token = null;
+    vi.doMock('./auth', () => ({
+      useAuthStore: () => mockAuthStore,
+    }));
+
+    const store = useFoldersStore();
 
     const result = await store.createFolder({ name: 'Test Folder' });
 

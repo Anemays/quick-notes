@@ -17,6 +17,7 @@ const mockRouter = createRouter({
   routes: [
     { path: '/', component: HomeView },
     { path: '/notes', component: { template: '<div>Notes</div>' } },
+    { path: '/login', component: { template: '<div>Login</div>' } },
   ],
 });
 

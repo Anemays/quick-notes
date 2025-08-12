@@ -1,7 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia } from 'pinia';
-import { NMessageProvider } from 'naive-ui';
+import {
+  NMessageProvider,
+  NButton,
+  NCard,
+  NInput,
+  NForm,
+  NFormItem,
+  NDivider,
+  NSpin,
+} from 'naive-ui';
 import NotesView from './NotesView.vue';
 
 // Mock useMessage
@@ -18,6 +27,14 @@ vi.mock('naive-ui', async () => {
   };
 });
 
+// Mock SimpleFolderSidebar
+vi.mock('@/components/SimpleFolderSidebar.vue', () => ({
+  default: {
+    name: 'SimpleFolderSidebar',
+    template: '<div data-testid="simple-folder-sidebar">Folder Sidebar</div>',
+  },
+}));
+
 describe('NotesView', () => {
   let pinia: any;
 
@@ -31,6 +48,13 @@ describe('NotesView', () => {
         plugins: [pinia],
         components: {
           NMessageProvider,
+          NButton,
+          NCard,
+          NInput,
+          NForm,
+          NFormItem,
+          NDivider,
+          NSpin,
         },
       },
     });
@@ -44,6 +68,13 @@ describe('NotesView', () => {
         plugins: [pinia],
         components: {
           NMessageProvider,
+          NButton,
+          NCard,
+          NInput,
+          NForm,
+          NFormItem,
+          NDivider,
+          NSpin,
         },
       },
     });
@@ -58,6 +89,13 @@ describe('NotesView', () => {
         plugins: [pinia],
         components: {
           NMessageProvider,
+          NButton,
+          NCard,
+          NInput,
+          NForm,
+          NFormItem,
+          NDivider,
+          NSpin,
         },
       },
     });
