@@ -5,9 +5,10 @@ import { PrismaService } from './prisma.service';
 import { NotesModule } from './notes/notes.module';
 import { MinioModule } from './minio.module';
 import { AuthModule } from './auth/auth.module';
+import { FoldersModule } from './folders/folders.module';
 
 @Module({
-  imports: [NotesModule, MinioModule, AuthModule],
+  imports: [NotesModule, MinioModule, AuthModule, FoldersModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
   exports: [PrismaService],

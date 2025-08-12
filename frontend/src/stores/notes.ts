@@ -7,6 +7,10 @@ export interface Note {
   title: string;
   content: string;
   fileUrl?: string | null;
+  folderId?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: number;
 }
 
 // Create axios instance with auth interceptor
@@ -30,7 +34,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const authStore = useAuthStore();
       authStore.logout();
-      window.location.href = '/login';
+      // Use router instead of window.location for SPA navigation
+      import('@/router').then(({ default: router }) => {
+        router.push('/login');
+      });
     }
     return Promise.reject(error);
   },

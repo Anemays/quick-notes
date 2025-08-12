@@ -9,6 +9,9 @@ export class NotesService {
   findAll(userId: number) {
     return this.prisma.note.findMany({
       where: { userId },
+      include: {
+        folder: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -21,6 +24,9 @@ export class NotesService {
           contains: searchTerm,
           mode: 'insensitive',
         },
+      },
+      include: {
+        folder: true,
       },
       orderBy: { createdAt: 'desc' },
     });

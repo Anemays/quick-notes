@@ -12,14 +12,12 @@ export const useThemeStore = defineStore('theme', () => {
   // Toggle theme function
   const toggleTheme = () => {
     isDark.value = !isDark.value;
-    console.log('🔄 Theme toggled, new value:', isDark.value);
     saveToStorage();
   };
 
   // Set specific theme
   const setTheme = (dark: boolean) => {
     isDark.value = dark;
-    console.log('🎯 Theme set to:', dark);
     saveToStorage();
   };
 
@@ -28,26 +26,20 @@ export const useThemeStore = defineStore('theme', () => {
     if (typeof localStorage !== 'undefined') {
       const theme = isDark.value ? 'dark' : 'light';
       localStorage.setItem('theme', theme);
-      console.log('💾 Saved theme to localStorage:', theme);
     }
   };
 
   // Initialize theme from localStorage or system preference
   const initializeTheme = () => {
-    console.log('🎨 Theme initialization started');
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
-      console.log('💾 Saved theme from localStorage:', savedTheme);
 
       if (savedTheme) {
         isDark.value = savedTheme === 'dark';
       } else {
         // Force light mode as default
-        console.log('🌞 No saved theme, setting default light mode');
         isDark.value = false;
       }
-
-      console.log('🎭 Final isDark value after initialization:', isDark.value);
     }
   };
 

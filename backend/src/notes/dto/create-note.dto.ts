@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateNoteDto {
@@ -14,4 +14,9 @@ export class CreateNoteDto {
   @IsOptional()
   @IsString()
   fileUrl?: string;
+
+  @ApiProperty({ description: 'The ID of the folder', required: false })
+  @IsOptional()
+  @IsNumber()
+  folderId?: number;
 }

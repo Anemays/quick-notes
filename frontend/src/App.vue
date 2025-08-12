@@ -13,7 +13,6 @@ const authStore = useAuthStore();
 const { naiveTheme, isDark } = storeToRefs(themeStore);
 
 onMounted(() => {
-  console.log('🚀 App mounted, initializing theme and auth...');
   themeStore.initializeTheme();
   authStore.initializeAuth();
 });
@@ -22,14 +21,11 @@ onMounted(() => {
 watch(
   isDark,
   (newValue) => {
-    console.log('👀 Theme changed in App.vue, isDark:', newValue);
     if (typeof document !== 'undefined') {
       if (newValue) {
         document.documentElement.classList.add('dark');
-        console.log('🌙 Added dark class to document');
       } else {
         document.documentElement.classList.remove('dark');
-        console.log('☀️ Removed dark class from document');
       }
     }
   },

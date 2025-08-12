@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 // Vite: https://vite.dev/config/
 // Vitest
 export default defineConfig({
+  base: '/',
   plugins: [vue(), vueDevTools(), tailwindcss()],
   resolve: {
     alias: {

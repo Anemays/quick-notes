@@ -11,6 +11,7 @@ describe('NotesService', () => {
     title: 'Test Note',
     content: 'Test Content',
     fileUrl: null,
+    folderId: null,
     userId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -45,6 +46,9 @@ describe('NotesService', () => {
       const findManySpy = jest.spyOn(prisma.note, 'findMany');
       expect(findManySpy).toHaveBeenCalledWith({
         where: { userId: 1 },
+        include: {
+          folder: true,
+        },
         orderBy: { createdAt: 'desc' },
       });
     });
@@ -111,6 +115,9 @@ describe('NotesService', () => {
             mode: 'insensitive',
           },
         },
+        include: {
+          folder: true,
+        },
         orderBy: { createdAt: 'desc' },
       });
     });
@@ -133,6 +140,9 @@ describe('NotesService', () => {
             mode: 'insensitive',
           },
         },
+        include: {
+          folder: true,
+        },
         orderBy: { createdAt: 'desc' },
       });
     });
@@ -153,6 +163,9 @@ describe('NotesService', () => {
             contains: searchQuery,
             mode: 'insensitive',
           },
+        },
+        include: {
+          folder: true,
         },
         orderBy: { createdAt: 'desc' },
       });

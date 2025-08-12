@@ -23,8 +23,24 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Relation to notes
+  // Relations
   notes Note[]
+  folders Folder[]
+}
+
+model Folder {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String?  @default("#3b82f6")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Foreign key to user
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  notes     Note[]
 }
 
 model Note {
@@ -35,7 +51,10 @@ model Note {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Foreign key to user
+  // Foreign keys
   userId    Int
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  folderId  Int?
+  folder    Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 }
