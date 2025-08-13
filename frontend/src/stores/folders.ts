@@ -45,13 +45,6 @@ export const useFoldersStore = defineStore('folders', () => {
     if (authStore.sessionId) {
       config.headers['X-Session-ID'] = authStore.sessionId;
     }
-    console.log(
-      '🌐 API Request:',
-      config.method?.toUpperCase(),
-      config.url,
-      'Base:',
-      config.baseURL,
-    );
     return config;
   });
 
@@ -63,18 +56,12 @@ export const useFoldersStore = defineStore('folders', () => {
   // Actions
   const fetchFolders = async () => {
     if (!authStore.sessionId) {
-      console.warn('⚠️ No auth session found, skipping fetchFolders');
       return;
     }
 
-    console.log('📡 Fetching folders...');
     loading.value = true;
-    error.value = null;
-
     try {
       const response = await api.get('/folders');
-
-      console.log('✅ Folders fetched:', response.data);
       folders.value = response.data;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -93,17 +80,14 @@ export const useFoldersStore = defineStore('folders', () => {
       return null;
     }
 
-    console.log('📡 Creating folder with data:', folderData);
     loading.value = true;
     error.value = null;
 
     try {
       const response = await api.post('/folders', folderData);
 
-      console.log('✅ Folder creation response:', response.data);
       const newFolder = response.data;
       folders.value.push(newFolder);
-      console.log('📋 Updated folders array:', folders.value);
       return newFolder;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';

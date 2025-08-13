@@ -8,6 +8,7 @@ import { NotesService } from './notes.service';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { SessionGuard } from '../auth/guards/session.guard';
 
 describe('NotesController', () => {
   let controller: NotesController;
@@ -42,7 +43,10 @@ describe('NotesController', () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(SessionGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<NotesController>(NotesController);
     service = module.get<NotesService>(NotesService);

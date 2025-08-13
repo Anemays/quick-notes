@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FoldersController } from './folders.controller';
 import { FoldersService } from './folders.service';
 import { AuthenticatedRequest } from '../types/auth.interface';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionGuard } from '../auth/guards/session.guard';
 
 describe('FoldersController', () => {
   let controller: FoldersController;
@@ -42,7 +42,7 @@ describe('FoldersController', () => {
         },
       ],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionGuard)
       .useValue({ canActivate: () => true })
       .compile();
 

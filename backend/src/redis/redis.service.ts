@@ -1,9 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
@@ -20,7 +14,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   constructor(private configService: ConfigService) {}
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const redisConfig = {
       host: this.configService.get<string>('REDIS_HOST') || 'localhost',
       port: this.configService.get<number>('REDIS_PORT') || 6379,
@@ -32,10 +26,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.client = new Redis(redisConfig);
 
     this.client.on('connect', () => {
-      console.log('✅ Redis connected successfully');
+      // Connection established
     });
 
-    this.client.on('error', (error) => {
+    this.client.on('error', (error: Error) => {
       console.error('❌ Redis connection error:', error);
     });
 
@@ -46,7 +40,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  onModuleDestroy() {
+  onModuleDestroy(): void {
     if (this.client) {
       this.client.disconnect();
     }
@@ -69,7 +63,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async getSession(sessionId: string): Promise<SessionData | null> {
     const key = `session:${sessionId}`;
     const data = await this.client.get(key);
-    return data ? JSON.parse(data) : null;
+    return data ? (JSON.parse(data) as SessionData) : null;
   }
 
   async deleteSession(sessionId: string): Promise<void> {
@@ -84,7 +78,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     for (const key of keys) {
       const sessionData = await this.client.get(key);
       if (sessionData) {
-        const data: SessionData = JSON.parse(sessionData);
+        const data: SessionData = JSON.parse(sessionData) as SessionData;
         if (data.userId === userId) {
           await this.client.del(key);
         }
@@ -108,7 +102,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     for (const key of keys) {
       const sessionData = await this.client.get(key);
       if (sessionData) {
-        const data: SessionData = JSON.parse(sessionData);
+        const data: SessionData = JSON.parse(sessionData) as SessionData;
         if (data.userId === userId) {
           userSessions.push(key.replace('session:', ''));
         }

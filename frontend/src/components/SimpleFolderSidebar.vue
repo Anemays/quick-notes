@@ -261,19 +261,13 @@ async function createFolder() {
   }
 
   try {
-    console.log('Creating folder:', newFolder.value);
-    const result = await foldersStore.createFolder({
+    await foldersStore.createFolder({
       name: newFolder.value.name,
       color: newFolder.value.color || undefined,
     });
-    console.log('Folder created:', result);
 
     // Force refresh folders list to ensure UI updates
     await foldersStore.fetchFolders();
-    console.log(
-      'Folders refreshed, current count:',
-      foldersStore.folders.length,
-    );
 
     message.success('Folder created successfully');
     newFolder.value = { name: '', color: null };
@@ -300,7 +294,7 @@ function handleContextMenuSelect(key: string) {
 
   switch (key) {
     case 'rename':
-      console.log('Rename folder:', folder.name);
+      // TODO: Implement rename functionality
       break;
     case 'delete':
       deleteFolder(folder);
@@ -335,9 +329,9 @@ function onNoteDragStart(event: Event, note: Note) {
   }
 }
 
-async function moveNoteToFolder(noteId: number, folderId: number | null) {
+async function moveNoteToFolder(_noteId: number, _folderId: number | null) {
   try {
-    console.log('Move note', noteId, 'to folder', folderId);
+    // TODO: Implement actual move functionality
     message.success('Note moved successfully');
   } catch {
     message.error('Failed to move note');

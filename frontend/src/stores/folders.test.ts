@@ -31,7 +31,7 @@ vi.mock('axios', () => ({
 // Mock useAuthStore
 vi.mock('./auth', () => ({
   useAuthStore: vi.fn(() => ({
-    token: null,
+    sessionId: null,
     user: null,
   })),
 }));
@@ -124,10 +124,10 @@ describe('Folders Store', () => {
     expect(store.error).toBe(null);
   });
 
-  it('should not fetch folders when no auth token', async () => {
-    // Mock useAuthStore to return no token
+  it('should not fetch folders when no auth session', async () => {
+    // Mock useAuthStore to return no sessionId
     const mockAuthStore = {
-      token: null,
+      sessionId: null,
       user: null,
     };
 
@@ -142,10 +142,10 @@ describe('Folders Store', () => {
     expect(store.folders).toEqual([]);
   });
 
-  it('should not create folder when no auth token', async () => {
-    // Mock useAuthStore to return no token
+  it('should not create folder when no auth session', async () => {
+    // Mock useAuthStore to return no sessionId
     const mockAuthStore = {
-      token: null,
+      sessionId: null,
       user: null,
     };
 
