@@ -25,19 +25,47 @@
     <div class="folder-list">
       <!-- All Notes (Root) -->
       <div
-        class="folder-item root-folder"
-        :class="{ active: selectedFolderId === null, dark: themeStore.isDark }"
+        :key="`root-folder-${themeStore.isDark}`"
+        class="folder-item"
+        :class="{
+          active: selectedFolderId === null,
+          dark: themeStore.isDark,
+          'drag-over': dragOverFolder === 'root',
+        }"
         @click="selectFolder(null)"
-        @drop="onDrop(null, $event)"
-        @dragover.prevent
+        @drop="onDrop('root', $event)"
+        @dragover="onDragOver('root', $event)"
         @dragenter.prevent
+        @dragleave="onDragLeave"
+        style="
+          margin-bottom: 8px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid var(--n-border-color);
+        "
       >
         <div class="folder-content">
-          <n-icon :size="16" class="folder-icon-item">
+          <n-icon
+            :size="16"
+            class="folder-icon-item"
+            :style="{
+              color: '#2080f0 !important',
+              fill: '#2080f0 !important',
+            }"
+          >
             <NotesIcon />
           </n-icon>
-          <span class="folder-name">All Notes</span>
-          <span class="note-count">{{ allNotesCount }}</span>
+          <span class="folder-name" :style="{ color: 'var(--n-text-color)' }">
+            {{ rootFolder.name }}
+          </span>
+          <span
+            class="note-count"
+            :style="{
+              color: 'var(--n-text-color-disabled)',
+              background: 'var(--n-color-target)',
+            }"
+          >
+            {{ allNotesCount }}
+          </span>
         </div>
       </div>
 
@@ -50,12 +78,14 @@
           active: selectedFolderId === folder.id,
           dark: themeStore.isDark,
           expanded: expandedFolders.has(folder.id),
+          'drag-over': dragOverFolder === folder.id,
         }"
         @click="selectFolder(folder.id)"
         @contextmenu.prevent="showContextMenu($event, folder)"
         @drop="onDrop(folder.id, $event)"
-        @dragover.prevent
+        @dragover="onDragOver(folder.id, $event)"
         @dragenter.prevent
+        @dragleave="onDragLeave"
       >
         <div class="folder-content">
           <n-icon
@@ -200,6 +230,9 @@ const newFolder = ref({
   color: null as string | null,
 });
 
+// Drag and drop state
+const dragOverFolder = ref<number | string | null>(null);
+
 // Context menu
 const contextMenu = ref({
   show: false,
@@ -214,6 +247,13 @@ const folders = computed(() => foldersStore.sortedFolders);
 const allNotesCount = computed(() => {
   return notesStore.notes.filter((note) => !note.folderId).length;
 });
+
+// Create a virtual folder object for root folder to mimic regular folders
+const rootFolder = computed(() => ({
+  id: null,
+  name: 'All Notes',
+  color: '#2080f0 !important', // Use !important to override any CSS
+}));
 
 const contextMenuOptions = computed(() => [
   {
@@ -312,14 +352,33 @@ async function deleteFolder(folder: Folder) {
   }
 }
 
-function onDrop(folderId: number | null, event: Event) {
+function onDrop(folderId: number | string | null, event: Event) {
   const dragEvent = event as any;
   dragEvent.preventDefault();
   const noteId = dragEvent.dataTransfer?.getData('text/plain');
 
+  // Clear drag over state
+  dragOverFolder.value = null;
+
   if (!noteId) return;
 
-  moveNoteToFolder(parseInt(noteId), folderId);
+  // Convert 'root' to null for API call
+  const targetFolderId = folderId === 'root' ? null : folderId;
+  moveNoteToFolder(parseInt(noteId), targetFolderId as number | null);
+}
+
+function onDragOver(folderId: number | string | null, event: Event) {
+  const dragEvent = event as any;
+  dragEvent.preventDefault();
+  dragOverFolder.value = folderId;
+}
+
+function onDragLeave(event: Event) {
+  const dragEvent = event as any;
+  // Only clear if we're really leaving the folder area
+  if (!dragEvent.currentTarget.contains(dragEvent.relatedTarget)) {
+    dragOverFolder.value = null;
+  }
 }
 
 function onNoteDragStart(event: Event, note: Note) {
@@ -329,11 +388,15 @@ function onNoteDragStart(event: Event, note: Note) {
   }
 }
 
-async function moveNoteToFolder(_noteId: number, _folderId: number | null) {
+async function moveNoteToFolder(noteId: number, folderId: number | null) {
   try {
-    // TODO: Implement actual move functionality
-    message.success('Note moved successfully');
-  } catch {
+    await notesStore.moveToFolder(noteId, folderId);
+    const folderName = folderId
+      ? folders.value.find((f) => f.id === folderId)?.name || 'Unknown Folder'
+      : 'All Notes';
+    message.success(`Note moved to ${folderName}`);
+  } catch (error) {
+    console.error('❌ Error moving note:', error);
     message.error('Failed to move note');
   }
 }
@@ -419,10 +482,50 @@ onMounted(async () => {
   color: var(--n-text-color);
 }
 
-.folder-item.root-folder {
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--n-border-color);
+.folder-item.dark .folder-name {
+  color: var(--n-text-color);
+}
+
+.folder-item.dark .note-count {
+  color: var(--n-text-color-disabled);
+  background: var(--n-color-target);
+}
+
+.folder-item.dark .folder-icon-item {
+  color: var(--n-text-color);
+}
+
+/* Enhanced dark theme untuk dynamic folders */
+.folder-item.dark,
+.dark .folder-item {
+  background-color: transparent;
+  color: var(--n-text-color);
+}
+
+.folder-item.dark .folder-name,
+.dark .folder-item .folder-name {
+  color: var(--n-text-color);
+}
+
+.folder-item.dark .note-count,
+.dark .folder-item .note-count {
+  color: var(--n-text-color-disabled);
+  background-color: var(--n-color-target);
+}
+
+.folder-item.dark .folder-icon-item,
+.dark .folder-item .folder-icon-item {
+  color: var(--n-icon-color);
+}
+
+.folder-item.dark:hover,
+.dark .folder-item:hover {
+  background-color: var(--n-color-hover);
+}
+
+.folder-item.dark.active,
+.dark .folder-item.active {
+  background-color: var(--n-color-pressed);
 }
 
 .folder-content {
@@ -507,6 +610,19 @@ onMounted(async () => {
 }
 
 /* Drag and drop styles */
+.folder-item.drag-over {
+  background: var(--n-color-primary);
+  color: white;
+  border: 2px dashed var(--n-color-primary);
+  transform: scale(1.02);
+}
+
+.folder-item.drag-over .folder-icon-item,
+.folder-item.drag-over .note-count,
+.folder-item.drag-over .folder-name {
+  color: white;
+}
+
 .folder-item[dragover] {
   background: var(--n-color-primary);
   color: white;
@@ -531,11 +647,13 @@ onMounted(async () => {
   border-bottom-color: var(--n-border-color);
 }
 
-.dark .folder-item.root-folder {
-  border-bottom-color: var(--n-border-color);
-}
-
-.dark .folder-notes {
-  border-left-color: var(--n-border-color);
+/* Remove emoji styling since we're using SVG icons */
+.emoji-icon {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }
 </style>

@@ -123,5 +123,13 @@ export const useNotesStore = defineStore('notes', {
       await api.delete(`/notes/${id}`);
       this.notes = this.notes.filter((n) => n.id !== id);
     },
+    async moveToFolder(noteId: number, folderId: number | null) {
+      const res = await api.patch<Note>(`/notes/${noteId}`, { folderId });
+      const idx = this.notes.findIndex((n) => n.id === noteId);
+      if (idx !== -1) {
+        this.notes[idx] = res.data;
+      }
+      return res.data;
+    },
   },
 });

@@ -1,240 +1,259 @@
 <template>
   <n-message-provider>
-    <div class="h-full flex gap-6 max-w-7xl mx-auto">
+    <div class="notes-view-container">
       <!-- FOLDER SIDEBAR -->
-      <div class="w-64 flex-shrink-0">
+      <div class="folder-sidebar">
         <SimpleFolderSidebar />
       </div>
 
       <!-- MAIN CONTENT AREA -->
-      <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- LEFT FORM -->
+      <div class="main-content">
+        <!-- ADD NEW NOTE FORM -->
         <n-card
-          :class="[
-            'shadow-sm border flex flex-col rounded-lg',
-            themeStore.isDark
-              ? '!bg-gray-800 !border-gray-700'
-              : '!bg-white !border-gray-200',
-          ]"
+          class="add-note-card"
+          :class="{ 'dark-theme': themeStore.isDark }"
         >
           <template #header>
-            <div
-              :class="[
-                'flex items-center gap-2 text-lg font-medium',
-                themeStore.isDark ? 'text-white' : 'text-gray-900',
-              ]"
-            >
-              📝 Add New Note
+            <div class="add-note-header">
+              <n-icon :size="18">
+                <EditIcon />
+              </n-icon>
+              <span>Add New Note</span>
             </div>
           </template>
 
-          <p
-            :class="[
-              'mb-4 text-sm',
-              themeStore.isDark ? 'text-gray-400' : 'text-gray-600',
-            ]"
-          >
-            Create a new note to keep your thoughts organized.
-          </p>
+          <n-form :model="noteForm" label-placement="top">
+            <div class="form-row">
+              <n-form-item label="Title" class="form-item">
+                <n-input
+                  v-model:value="title"
+                  placeholder="Enter note title..."
+                  clearable
+                />
+              </n-form-item>
 
-          <n-form label-placement="top" class="flex-1">
-            <n-form-item label="Title">
-              <n-input
-                v-model:value="title"
-                placeholder="Enter a short title"
-              />
-            </n-form-item>
+              <n-form-item label="Attachment" class="form-item-attachment">
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  class="hidden"
+                  @change="onFileChange"
+                />
+                <n-button
+                  @click="handleFileClick"
+                  :type="file ? 'primary' : 'default'"
+                >
+                  <template #icon>
+                    <n-icon>
+                      <AttachmentIcon />
+                    </n-icon>
+                  </template>
+                  {{ file ? file.name : 'Choose File' }}
+                </n-button>
+              </n-form-item>
+            </div>
 
             <n-form-item label="Content">
               <n-input
                 type="textarea"
                 v-model:value="content"
-                placeholder="Write something memorable..."
-                rows="4"
+                placeholder="Write your note content..."
+                :rows="3"
+                clearable
               />
             </n-form-item>
 
-            <n-form-item label="Attachment (optional)">
-              <input
-                ref="fileInputRef"
-                type="file"
-                accept="image/*,application/pdf"
-                class="hidden"
-                @change="onFileChange"
-              />
-              <n-button
-                :class="[
-                  themeStore.isDark
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700',
-                ]"
-                @click="handleFileClick"
-              >
-                📎 Choose File
-              </n-button>
-              <p
-                v-if="file?.name"
-                :class="[
-                  'text-xs mt-1 italic truncate',
-                  themeStore.isDark ? 'text-gray-400' : 'text-gray-500',
-                ]"
-              >
-                Selected: {{ file.name }}
-              </p>
-            </n-form-item>
-
-            <n-divider />
-
-            <div class="flex gap-3 mt-2">
+            <div class="form-actions">
               <n-button
                 type="primary"
-                class="w-full"
                 @click="addNote"
                 :disabled="!title.trim()"
+                :loading="store.loading"
               >
-                ➕ Add Note
+                <template #icon>
+                  <n-icon>
+                    <AddIcon />
+                  </n-icon>
+                </template>
+                Add Note
               </n-button>
-              <n-button ghost class="w-full" @click="store.fetch"
-                >↻ Refresh</n-button
-              >
+              <n-button @click="store.fetch" :loading="store.loading">
+                <template #icon>
+                  <n-icon>
+                    <RefreshIcon />
+                  </n-icon>
+                </template>
+                Refresh
+              </n-button>
             </div>
           </n-form>
-
-          <p
-            :class="[
-              'mt-6 text-xs text-center italic',
-              themeStore.isDark ? 'text-gray-500' : 'text-gray-600',
-            ]"
-          >
-            "Even the smallest note can spark the brightest ideas."
-          </p>
         </n-card>
 
-        <!-- RIGHT LIST -->
-        <div
-          class="flex flex-col overflow-y-auto pr-2 max-h-[calc(100vh-3.5rem)] min-h-0"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <h2
-              :class="[
-                'text-xl font-semibold',
-                themeStore.isDark ? 'text-white' : 'text-gray-900',
-              ]"
-            >
-              📋 Notes List
-            </h2>
-          </div>
-
-          <!-- Search Section -->
-          <div class="mb-4">
+        <!-- SEARCH AND NOTES SECTION -->
+        <div class="notes-section">
+          <!-- Search Bar -->
+          <div class="search-section">
             <n-input
               v-model:value="searchQuery"
               placeholder="Search notes by title..."
               @input="handleSearch"
               clearable
-              class="mb-2"
-            />
-            <div
-              v-if="store.searchTerm"
-              :class="[
-                'flex items-center gap-2 text-sm',
-                themeStore.isDark ? 'text-gray-400' : 'text-gray-600',
-              ]"
+              size="large"
             >
-              <span>Searching for: "{{ store.searchTerm }}"</span>
-              <n-button size="tiny" @click="clearSearch">Clear</n-button>
+              <template #prefix>
+                <n-icon>
+                  <SearchIcon />
+                </n-icon>
+              </template>
+            </n-input>
+            <div v-if="store.searchTerm" class="search-info">
+              Searching for: <strong>"{{ store.searchTerm }}"</strong>
+              <n-button size="tiny" text @click="clearSearch">Clear</n-button>
             </div>
           </div>
 
-          <div v-if="store.loading" class="text-center py-4">
-            <n-spin size="medium" />
+          <!-- Loading State -->
+          <div v-if="store.loading" class="loading-state">
+            <n-spin size="large" />
+            <p>Loading notes...</p>
           </div>
 
-          <div
-            v-else-if="store.notes.length === 0"
-            :class="[
-              'text-center py-8',
-              themeStore.isDark ? 'text-gray-400' : 'text-gray-500',
-            ]"
-          >
-            <div v-if="store.searchTerm">
-              No notes found for "{{ store.searchTerm }}"
-            </div>
-            <div v-else>No notes yet. Create your first note!</div>
-          </div>
-
-          <n-card
-            v-for="note in store.notes"
-            :key="note.id"
-            :class="[
-              'mb-4 shadow-sm border rounded-lg',
-              themeStore.isDark
-                ? '!bg-gray-800 !border-gray-700'
-                : '!bg-white !border-gray-200',
-            ]"
-          >
-            <div class="flex justify-between items-center mb-2">
-              <h3
-                :class="[
-                  'text-lg font-medium',
-                  themeStore.isDark ? 'text-white' : 'text-gray-900',
-                ]"
-              >
-                {{ note.title }}
-              </h3>
-              <div class="space-x-2">
-                <n-button size="small" @click="startEdit(note)">Edit</n-button>
-                <n-button
-                  size="small"
-                  type="error"
-                  @click="() => store.remove(note.id)"
-                  >Delete</n-button
-                >
-              </div>
-            </div>
-
-            <div v-if="editing && editing.id === note.id">
-              <n-input
-                v-model:value="eTitle"
-                placeholder="New Title"
-                class="mb-2"
-              />
-              <n-input
-                type="textarea"
-                rows="3"
-                v-model:value="eContent"
-                placeholder="New Content"
-                class="mb-2"
-              />
-              <div class="flex gap-2">
-                <n-button type="primary" size="small" @click="saveEdit"
-                  >Save</n-button
-                >
-                <n-button size="small" @click="cancelEdit">Cancel</n-button>
-              </div>
-            </div>
-            <p
-              v-else
-              :class="[
-                'whitespace-pre-line',
-                themeStore.isDark ? 'text-gray-300' : 'text-gray-700',
-              ]"
-            >
-              {{ note.content }}
+          <!-- Empty State -->
+          <div v-else-if="store.notes.length === 0" class="empty-state">
+            <n-icon :size="48" class="large-icon">
+              <NoteIcon />
+            </n-icon>
+            <h3>{{ store.searchTerm ? 'No notes found' : 'No notes yet' }}</h3>
+            <p>
+              {{
+                store.searchTerm
+                  ? `No notes found for "${store.searchTerm}"`
+                  : 'Create your first note to get started!'
+              }}
             </p>
+          </div>
 
-            <a
-              v-if="note.fileUrl"
-              :href="note.fileUrl"
-              target="_blank"
-              :class="[
-                'underline mt-2 block',
-                themeStore.isDark ? 'text-blue-400' : 'text-blue-600',
-              ]"
+          <!-- Notes Grid -->
+          <div v-else class="notes-grid">
+            <n-card
+              v-for="note in store.notes"
+              :key="note.id"
+              class="note-card"
+              :class="{ editing: editingNoteId === note.id }"
+              hoverable
+              draggable="true"
+              @dragstart="onNoteDragStart($event, note)"
             >
-              📎 View Attachment
-            </a>
-          </n-card>
+              <!-- EDIT MODE -->
+              <div v-if="editingNoteId === note.id" class="edit-form">
+                <n-form label-placement="top">
+                  <n-form-item label="Title">
+                    <n-input
+                      v-model:value="eTitle"
+                      placeholder="Enter note title..."
+                      clearable
+                    />
+                  </n-form-item>
+                  <n-form-item label="Content">
+                    <n-input
+                      type="textarea"
+                      v-model:value="eContent"
+                      placeholder="Write your note content..."
+                      :rows="4"
+                    />
+                  </n-form-item>
+                </n-form>
+                <div class="edit-actions">
+                  <n-button @click="cancelEdit" size="small">Cancel</n-button>
+                  <n-button
+                    type="primary"
+                    @click="saveEdit"
+                    :loading="store.loading"
+                    size="small"
+                  >
+                    Save
+                  </n-button>
+                </div>
+              </div>
+
+              <!-- VIEW MODE -->
+              <div v-else>
+                <div class="note-header">
+                  <h3 class="note-title">{{ note.title || 'Untitled' }}</h3>
+                  <div class="note-actions">
+                    <n-button
+                      size="small"
+                      circle
+                      @click="startEdit(note)"
+                      title="Edit note"
+                    >
+                      <template #icon>
+                        <n-icon>
+                          <EditIcon />
+                        </n-icon>
+                      </template>
+                    </n-button>
+                    <n-button
+                      size="small"
+                      circle
+                      type="error"
+                      @click="deleteNote(note)"
+                      title="Delete note"
+                    >
+                      <template #icon>
+                        <n-icon>
+                          <DeleteIcon />
+                        </n-icon>
+                      </template>
+                    </n-button>
+                  </div>
+                </div>
+
+                <div class="note-content" v-if="note.content">
+                  {{ note.content }}
+                </div>
+
+                <div class="note-footer">
+                  <div class="note-meta">
+                    <span class="note-date">
+                      {{ formatDate(note.updatedAt || note.createdAt) }}
+                    </span>
+                    <n-tag
+                      v-if="note.folderId"
+                      size="small"
+                      type="info"
+                      :bordered="false"
+                    >
+                      <template #icon>
+                        <n-icon>
+                          <FolderIcon />
+                        </n-icon>
+                      </template>
+                      In Folder
+                    </n-tag>
+                  </div>
+
+                  <n-button
+                    v-if="note.fileUrl"
+                    size="small"
+                    text
+                    tag="a"
+                    :href="note.fileUrl"
+                    target="_blank"
+                    class="attachment-btn"
+                  >
+                    <template #icon>
+                      <n-icon>
+                        <AttachmentIcon />
+                      </n-icon>
+                    </template>
+                    Attachment
+                  </n-button>
+                </div>
+              </div>
+            </n-card>
+          </div>
         </div>
       </div>
     </div>
@@ -242,7 +261,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
+import {
+  NCard,
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  NIcon,
+  NMessageProvider,
+  NSpin,
+  NTag,
+} from 'naive-ui';
+import {
+  AttachOutline as AttachmentIcon,
+  CreateOutline as EditIcon,
+  AddOutline as AddIcon,
+  RefreshOutline as RefreshIcon,
+  SearchOutline as SearchIcon,
+  TrashOutline as DeleteIcon,
+  DocumentTextOutline as NoteIcon,
+  FolderOutline as FolderIcon,
+} from '@vicons/ionicons5';
 import { useNotesStore, type Note } from '@/stores/notes';
 import { useThemeStore } from '@/stores/theme';
 import SimpleFolderSidebar from '@/components/SimpleFolderSidebar.vue';
@@ -250,14 +290,24 @@ import SimpleFolderSidebar from '@/components/SimpleFolderSidebar.vue';
 const store = useNotesStore();
 const themeStore = useThemeStore();
 
+// Form data
 const title = ref('');
 const content = ref('');
 const file = ref<File | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
+// Reactive forms for validation
+const noteForm = reactive({
+  title: '',
+  content: '',
+  file: null as File | null,
+});
+
 // Search functionality
 const searchQuery = ref('');
 
+// Inline editing
+const editingNoteId = ref<number | null>(null);
 const editing = ref<Note | null>(null);
 const eTitle = ref('');
 const eContent = ref('');
@@ -283,9 +333,26 @@ async function addNote() {
 }
 
 function startEdit(n: Note) {
+  // Close any other editing note first
+  if (editingNoteId.value && editingNoteId.value !== n.id) {
+    editingNoteId.value = null;
+  }
+
   editing.value = { ...n };
   eTitle.value = n.title;
   eContent.value = n.content;
+  editingNoteId.value = n.id;
+}
+
+function cancelEdit() {
+  editingNoteId.value = null;
+  editing.value = null;
+  eTitle.value = '';
+  eContent.value = '';
+}
+
+async function deleteNote(note: Note) {
+  await store.remove(note.id);
 }
 
 async function saveEdit() {
@@ -294,11 +361,10 @@ async function saveEdit() {
     title: eTitle.value,
     content: eContent.value,
   });
+  editingNoteId.value = null;
   editing.value = null;
-}
-
-function cancelEdit() {
-  editing.value = null;
+  eTitle.value = '';
+  eContent.value = '';
 }
 
 // Search functionality with debounce
@@ -322,6 +388,27 @@ function clearSearch() {
   store.clearSearch();
 }
 
+function onNoteDragStart(event: Event, note: Note) {
+  const dragEvent = event as any;
+  if (dragEvent.dataTransfer) {
+    dragEvent.dataTransfer.setData('text/plain', note.id.toString());
+  }
+}
+
+function formatDate(dateString?: string) {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+
+  return date.toLocaleDateString();
+}
+
 // Handle note selection from folder sidebar (currently unused but kept for future use)
 // function selectNote(note: Note) {
 //   startEdit(note);
@@ -331,3 +418,303 @@ onMounted(() => {
   store.fetch();
 });
 </script>
+
+<style scoped>
+.notes-view-container {
+  display: flex;
+  height: 100vh;
+  max-width: 100vw;
+  overflow: hidden;
+}
+
+.folder-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--n-border-color);
+  background: var(--n-color);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 24px;
+  overflow-y: auto;
+  background: var(--n-body-color);
+}
+
+/* Add Note Card */
+.add-note-card {
+  flex-shrink: 0;
+  border: 1px solid var(--n-border-color);
+  background: var(--n-card-color);
+}
+
+.add-note-card.dark-theme {
+  background: var(--n-card-color);
+  border-color: var(--n-border-color);
+}
+
+.add-note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--n-text-color);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.form-item {
+  min-width: 0;
+}
+
+.form-item-attachment {
+  width: auto;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Notes Section */
+.notes-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--n-text-color-disabled);
+}
+
+/* Loading and Empty States */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--n-text-color-disabled);
+}
+
+.empty-icon {
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: var(--n-text-color);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Notes Grid */
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding-bottom: 20px;
+}
+
+/* Note Cards */
+.note-card {
+  cursor: grab;
+  transition: all 0.2s ease;
+  border: 1px solid var(--n-border-color);
+  background: var(--n-card-color);
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--n-color-primary);
+}
+
+.note-card:active {
+  cursor: grabbing;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.note-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--n-text-color);
+  line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
+}
+
+.note-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.note-card:hover .note-actions {
+  opacity: 1;
+}
+
+/* Inline Edit Form */
+.note-card.editing {
+  border-color: var(--n-primary-color);
+  background-color: var(--n-card-color-hover);
+}
+
+.edit-form {
+  padding: 4px 0;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.note-content {
+  color: var(--n-text-color);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.note-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.note-date {
+  font-size: 12px;
+  color: var(--n-text-color-disabled);
+  font-style: italic;
+}
+
+.attachment-btn {
+  font-size: 12px;
+}
+
+/* Modal */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .notes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .notes-view-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .folder-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--n-border-color);
+  }
+
+  .main-content {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .note-actions {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .note-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .note-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* Icon Styling */
+.large-icon {
+  color: var(--n-text-color-disabled);
+  margin-bottom: 16px;
+}
+</style>

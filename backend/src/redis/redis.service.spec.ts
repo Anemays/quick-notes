@@ -13,9 +13,9 @@ const mockRedisInstance = {
   expire: jest.fn().mockResolvedValue(1),
 };
 
-jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation(() => mockRedisInstance);
-});
+jest.mock('ioredis', () => ({
+  Redis: jest.fn().mockImplementation(() => mockRedisInstance),
+}));
 
 describe('RedisService', () => {
   let service: RedisService;

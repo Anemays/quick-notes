@@ -27,4 +27,12 @@ describe('notes store', () => {
     expect(typeof store.clearSearch).toBe('function');
     expect(typeof store.searchByTitle).toBe('function');
   });
+
+  it('should have moveToFolder function', async () => {
+    const { useNotesStore } = await import('./notes');
+    const store = useNotesStore();
+
+    // Test that the moveToFolder function exists
+    expect(typeof store.moveToFolder).toBe('function');
+  });
 });

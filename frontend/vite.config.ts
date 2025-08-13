@@ -22,6 +22,13 @@ export default defineConfig({
   build: {
     // Keep sourcemaps for debugging
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'naive-ui': ['naive-ui'],
+        },
+      },
+    },
   },
   server: {
     proxy: {
