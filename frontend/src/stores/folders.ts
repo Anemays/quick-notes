@@ -40,10 +40,10 @@ export const useFoldersStore = defineStore('folders', () => {
     baseURL: '/api',
   });
 
-  // Add request interceptor to include auth token
+  // Add request interceptor to include session ID
   api.interceptors.request.use((config) => {
-    if (authStore.token) {
-      config.headers.Authorization = `Bearer ${authStore.token}`;
+    if (authStore.sessionId) {
+      config.headers['X-Session-ID'] = authStore.sessionId;
     }
     console.log(
       '🌐 API Request:',
@@ -62,8 +62,8 @@ export const useFoldersStore = defineStore('folders', () => {
 
   // Actions
   const fetchFolders = async () => {
-    if (!authStore.token) {
-      console.warn('⚠️ No auth token found, skipping fetchFolders');
+    if (!authStore.sessionId) {
+      console.warn('⚠️ No auth session found, skipping fetchFolders');
       return;
     }
 
@@ -88,8 +88,8 @@ export const useFoldersStore = defineStore('folders', () => {
   };
 
   const createFolder = async (folderData: CreateFolderDto) => {
-    if (!authStore.token) {
-      console.error('❌ No auth token found');
+    if (!authStore.sessionId) {
+      console.error('❌ No auth session found');
       return null;
     }
 
@@ -118,7 +118,7 @@ export const useFoldersStore = defineStore('folders', () => {
   };
 
   const updateFolder = async (id: number, folderData: UpdateFolderDto) => {
-    if (!authStore.token) return null;
+    if (!authStore.sessionId) return null;
 
     loading.value = true;
     error.value = null;
@@ -145,7 +145,7 @@ export const useFoldersStore = defineStore('folders', () => {
   };
 
   const deleteFolder = async (id: number) => {
-    if (!authStore.token) return false;
+    if (!authStore.sessionId) return false;
 
     loading.value = true;
     error.value = null;
@@ -168,7 +168,7 @@ export const useFoldersStore = defineStore('folders', () => {
   };
 
   const moveNoteToFolder = async (noteId: number, folderId: number | null) => {
-    if (!authStore.token) return false;
+    if (!authStore.sessionId) return false;
 
     loading.value = true;
     error.value = null;

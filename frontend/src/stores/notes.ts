@@ -18,11 +18,11 @@ const api = axios.create({
   baseURL: '/api',
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include session ID
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
-  if (authStore.token) {
-    config.headers.Authorization = `Bearer ${authStore.token}`;
+  if (authStore.sessionId) {
+    config.headers['X-Session-ID'] = authStore.sessionId;
   }
   return config;
 });

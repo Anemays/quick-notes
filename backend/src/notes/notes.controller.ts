@@ -22,7 +22,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionGuard } from '../auth/guards/session.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -34,7 +34,7 @@ interface AuthenticatedRequest extends Request {
 
 @ApiTags('notes')
 @Controller('notes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(SessionGuard)
 export class NotesController {
   constructor(
     private readonly notes: NotesService,

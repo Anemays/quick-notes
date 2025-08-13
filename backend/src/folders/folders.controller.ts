@@ -10,14 +10,14 @@ import {
   Request,
   Put,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SessionGuard } from '../auth/guards/session.guard';
 import { FoldersService } from './folders.service';
 import { CreateFolderDto } from './dto/create-folder.dto';
 import { UpdateFolderDto } from './dto/update-folder.dto';
 import { AuthenticatedRequest } from '../types/auth.interface';
 
 @Controller('folders')
-@UseGuards(JwtAuthGuard)
+@UseGuards(SessionGuard)
 export class FoldersController {
   constructor(private readonly foldersService: FoldersService) {}
 

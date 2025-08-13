@@ -3,11 +3,12 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
+import { RedisService } from '../redis/redis.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: jest.Mocked<UsersService>;
-  let jwtService: jest.Mocked<JwtService>;
+  let redisService: jest.Mocked<RedisService>;
 
   const mockUser = {
     id: 1,
@@ -42,12 +43,20 @@ describe('AuthService', () => {
             sign: jest.fn(),
           },
         },
+        {
+          provide: RedisService,
+          useValue: {
+            setSession: jest.fn(),
+            getSession: jest.fn(),
+            deleteSession: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     usersService = module.get(UsersService);
-    jwtService = module.get(JwtService);
+    redisService = module.get(RedisService);
   });
 
   it('should be defined', () => {
@@ -87,25 +96,30 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return access token and user info', () => {
+    it('should return sessionId and user info', async () => {
       const userPayload = {
         id: 1,
         email: 'test@example.com',
         name: 'Test User',
       };
 
-      jwtService.sign.mockReturnValue('mock-jwt-token');
+      redisService.setSession.mockResolvedValue(undefined);
 
-      const result = service.login(userPayload);
+      const result = await service.login(userPayload);
 
-      expect(result).toEqual({
-        access_token: 'mock-jwt-token',
-        user: userPayload,
+      expect(result).toHaveProperty('sessionId');
+      expect(result.sessionId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+      expect(result.user).toEqual({
+        id: 1,
+        email: 'test@example.com',
+        name: 'Test User',
       });
 
-      expect(jwtService.sign).toHaveBeenCalledWith({
+      expect(redisService.setSession).toHaveBeenCalledWith(result.sessionId, {
+        userId: 1,
         email: 'test@example.com',
-        sub: 1,
         name: 'Test User',
       });
     });
@@ -121,14 +135,15 @@ describe('AuthService', () => {
     it('should register a new user successfully', async () => {
       usersService.findByEmail.mockResolvedValue(null);
       usersService.create.mockResolvedValue(mockSafeUser);
-      jwtService.sign.mockReturnValue('mock-jwt-token');
+      redisService.setSession.mockResolvedValue(undefined);
 
       const result = await service.register(registerDto);
 
-      expect(result).toEqual({
-        access_token: 'mock-jwt-token',
-        user: mockSafeUser,
-      });
+      expect(result).toHaveProperty('sessionId');
+      expect(result.sessionId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+      expect(result.user).toEqual(mockSafeUser);
     });
 
     it('should throw UnauthorizedException when user already exists', async () => {

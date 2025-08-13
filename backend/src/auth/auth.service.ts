@@ -1,6 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
+import { RedisService } from '../redis/redis.service';
+import { randomUUID } from 'crypto';
 
 export interface LoginDto {
   email: string;
@@ -24,6 +26,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private redisService: RedisService,
   ) {}
 
   async validateUser(
@@ -44,10 +47,19 @@ export class AuthService {
     return null;
   }
 
-  login(user: UserPayload) {
-    const payload = { email: user.email, sub: user.id, name: user.name };
+  async login(user: UserPayload) {
+    // Generate session ID instead of JWT
+    const sessionId = randomUUID();
+
+    // Store session in Redis
+    await this.redisService.setSession(sessionId, {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      sessionId,
       user: {
         id: user.id,
         email: user.email,
@@ -66,11 +78,40 @@ export class AuthService {
     // Create new user
     const user = await this.usersService.create(registerDto);
 
-    // Generate JWT token
-    const payload = { email: user.email, sub: user.id, name: user.name };
+    // Generate session ID instead of JWT
+    const sessionId = randomUUID();
+
+    // Store session in Redis
+    await this.redisService.setSession(sessionId, {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      sessionId,
       user,
     };
+  }
+
+  async logout(sessionId: string): Promise<void> {
+    await this.redisService.deleteSession(sessionId);
+  }
+
+  async validateSession(sessionId: string): Promise<UserPayload | null> {
+    const sessionData = await this.redisService.getSession(sessionId);
+    if (!sessionData) {
+      return null;
+    }
+
+    return {
+      id: sessionData.userId,
+      email: sessionData.email,
+      name: (sessionData.name as string) || '',
+    };
+  }
+
+  async logoutAllSessions(userId: number): Promise<void> {
+    await this.redisService.deleteAllUserSessions(userId);
   }
 }

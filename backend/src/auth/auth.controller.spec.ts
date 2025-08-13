@@ -18,7 +18,7 @@ describe('AuthController', () => {
   };
 
   const mockAuthResult = {
-    access_token: 'mock-jwt-token',
+    sessionId: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' as const,
     user: mockSafeUser,
   };
 
@@ -45,12 +45,12 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should login user successfully', () => {
+    it('should login user successfully', async () => {
       const req = { user: { userId: 1, email: 'test@example.com' } } as any;
 
-      authService.login.mockReturnValue(mockAuthResult);
+      authService.login.mockResolvedValue(mockAuthResult);
 
-      const result = controller.login(req);
+      const result = await controller.login(req);
       expect(result).toEqual(mockAuthResult);
       expect(authService.login).toHaveBeenCalledWith(req.user);
     });

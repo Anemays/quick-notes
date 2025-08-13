@@ -2,10 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FoldersService } from './folders.service';
 import { PrismaService } from '../prisma.service';
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 describe('FoldersService', () => {
   let service: FoldersService;
   let prisma: jest.Mocked<PrismaService>;

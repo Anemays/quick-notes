@@ -6,11 +6,14 @@ import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { SessionGuard } from './guards/session.guard';
 import { PrismaService } from '../prisma.service';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [
     PassportModule,
+    RedisModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-secret-key',
       signOptions: { expiresIn: '24h' },
@@ -22,8 +25,9 @@ import { PrismaService } from '../prisma.service';
     UsersService,
     JwtStrategy,
     LocalStrategy,
+    SessionGuard,
     PrismaService,
   ],
-  exports: [AuthService, UsersService],
+  exports: [AuthService, UsersService, SessionGuard],
 })
 export class AuthModule {}

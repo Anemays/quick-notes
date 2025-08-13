@@ -33,6 +33,22 @@ services:
       retries: 3
       start_period: 30s
 
+  # ─────────────── redis cache ───────────
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD:-redispassword}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-redispassword}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   # ─────────────── backend NestJS ─────────
   backend:
     build: 
@@ -43,6 +59,8 @@ services:
       postgres:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "3000:3000"
@@ -97,3 +115,4 @@ services:
 volumes:
   pgdata:
   minio_data:
+  redis_data:

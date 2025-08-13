@@ -4,8 +4,6 @@ import { FoldersService } from './folders.service';
 import { AuthenticatedRequest } from '../types/auth.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 describe('FoldersController', () => {
   let controller: FoldersController;
   let service: FoldersService;
