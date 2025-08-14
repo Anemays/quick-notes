@@ -3,17 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface RegisterDto {
-  email: string;
-  password: string;
-  name: string;
-}
+import { RegisterDto } from './dto/register.dto';
 
 interface UserPayload {
   id: number;
