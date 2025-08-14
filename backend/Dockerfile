@@ -1,12 +1,16 @@
 # ---------- dependencies stage ----------
 FROM node:20-alpine AS deps
+
+# Update npm to latest version
+RUN npm install -g npm@latest
+
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies with npm ci for production builds
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 # ---------- build stage ----------
 FROM node:20-alpine AS build

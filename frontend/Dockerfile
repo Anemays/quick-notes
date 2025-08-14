@@ -1,5 +1,9 @@
 # ---------- dependencies stage ----------
 FROM node:20-alpine AS deps
+
+# Update npm to latest version
+RUN npm install -g npm@latest
+
 WORKDIR /app
 
 # Copy package files
