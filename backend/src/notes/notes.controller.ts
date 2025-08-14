@@ -26,7 +26,7 @@ import { SessionGuard } from '../auth/guards/session.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
-    userId: number;
+    id: number;
     email: string;
     name: string;
   };
@@ -44,7 +44,7 @@ export class NotesController {
   @Get()
   @ApiOperation({ summary: 'Get all notes' })
   findAll(@Request() req: AuthenticatedRequest) {
-    return this.notes.findAll(req.user.userId);
+    return this.notes.findAll(req.user.id);
   }
 
   @Get('search')
@@ -54,9 +54,9 @@ export class NotesController {
     @Query('q') searchTerm?: string,
   ) {
     if (!searchTerm || searchTerm.trim() === '') {
-      return this.notes.findAll(req.user.userId);
+      return this.notes.findAll(req.user.id);
     }
-    return this.notes.searchByTitle(searchTerm.trim(), req.user.userId);
+    return this.notes.searchByTitle(searchTerm.trim(), req.user.id);
   }
 
   @Post()
@@ -65,7 +65,7 @@ export class NotesController {
     @Body() createNoteDto: CreateNoteDto,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.notes.create(createNoteDto, req.user.userId);
+    return this.notes.create(createNoteDto, req.user.id);
   }
 
   @Patch(':id')
@@ -75,7 +75,7 @@ export class NotesController {
     @Body() updateNoteDto: UpdateNoteDto,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.notes.update(id, updateNoteDto, req.user.userId);
+    return this.notes.update(id, updateNoteDto, req.user.id);
   }
 
   @Delete(':id')
@@ -83,7 +83,7 @@ export class NotesController {
     @Param('id', ParseIntPipe) id: number,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.notes.remove(id, req.user.userId);
+    return this.notes.remove(id, req.user.id);
   }
 
   // ✅ Upload note + file
@@ -115,7 +115,7 @@ export class NotesController {
         ...body,
         fileUrl,
       },
-      req.user.userId,
+      req.user.id,
     );
   }
 }
