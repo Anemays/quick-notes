@@ -59,7 +59,7 @@ describe('NotesController', () => {
 
   describe('findAll', () => {
     it('should return an array of notes', async () => {
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       const result = await controller.findAll(mockReq);
       expect(result).toEqual([mockNote]);
       expect(service.findAll).toHaveBeenCalledWith(1);
@@ -69,14 +69,14 @@ describe('NotesController', () => {
   describe('searchByTitle', () => {
     it('should return filtered notes by title', async () => {
       const searchQuery = 'test';
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       const result = await controller.searchByTitle(mockReq, searchQuery);
       expect(result).toEqual([mockNote]);
       expect(service.searchByTitle).toHaveBeenCalledWith(searchQuery, 1);
     });
 
     it('should return all notes when search query is empty', async () => {
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       const result = await controller.searchByTitle(mockReq, '');
       expect(result).toEqual([mockNote]);
       // Note: searchByTitle is already mocked to return [mockNote]
@@ -88,7 +88,7 @@ describe('NotesController', () => {
         title: 'Test Note',
         content: 'Test Content',
       };
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       const result = await controller.create(dto, mockReq);
       expect(result).toEqual(mockNote);
       expect(service.create).toHaveBeenCalledWith(dto, 1);
@@ -101,7 +101,7 @@ describe('NotesController', () => {
         title: 'Updated Note',
         content: 'Updated Content',
       };
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       const result = await controller.update(1, dto, mockReq);
       expect(result).toEqual(mockNote);
       expect(service.update).toHaveBeenCalledWith(1, dto, 1);
@@ -110,7 +110,7 @@ describe('NotesController', () => {
 
   describe('remove', () => {
     it('should remove a note', async () => {
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       await controller.remove(1, mockReq);
       expect(service.remove).toHaveBeenCalledWith(1, 1);
     });
@@ -127,7 +127,7 @@ describe('NotesController', () => {
         title: 'Test Note',
         content: 'Test Content',
       };
-      const mockReq = { user: { userId: 1 } } as any;
+      const mockReq = { user: { id: 1 } } as any;
       await controller.uploadNoteWithFile(file, dto, mockReq);
     });
   });
